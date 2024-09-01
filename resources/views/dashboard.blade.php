@@ -14,14 +14,9 @@
 
             <div class="grid grid-cols-4 gap-4 grid-cols-sm-1">
                 @foreach($timerCards as $card)
-                    <x-timer-card 
-                        :cardName="$card->card_name" 
-                        :userName="$card->user ? $card->user->name : 'Staff ' . $card->id"
-                        :time="$card->time" 
-                        :status="$card->status"
-                        :id="$card->id"
-                    />
-                @endforeach 
+                <x-timer-card :cardName="$card->card_name" :userName="$card->user ? $card->user->name : null"
+                    :time="$card->time" :status="$card->status" :id="$card->id" />
+                @endforeach
             </div>
         </div>
     </div>
@@ -37,44 +32,108 @@
                     <x-text-input id="card_name" name="card_name" placeholder="Nama Loket" class="mb-2 w-full" />
 
                     <x-input-label for="userSelect" value="Pilih User" />
-                    <select name="user_id" id="userSelect" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mb-2 w-full">
+                    <select name="user_id" id="userSelect"
+                        class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mb-2 w-full">
                         <option value="" disabled selected>Pilih User</option>
                         @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
                         @endforeach
                     </select>
 
-                    <x-input-label for="time" value="Waktu" />
-                    <x-text-input id="time" name="time" placeholder="00:00:00" value="00:00:00" class="mb-2 w-full" />
+                    <!-- Kolom waktu dihapus atau dikomentari -->
+                    <!-- <x-input-label for="time" value="Waktu" />
+                <x-text-input id="time" name="time" placeholder="00:00:00" value="00:00:00" class="mb-2 w-full" /> -->
+                    <!-- If using a hidden field to store the time -->
+                    <input type="hidden" id="time" name="time" value="00:45:00">
+
+                    <!-- Tombol "Sesi 1" untuk menambahkan 45 menit -->
+                    <x-primary-button id="session1Button" class="mb-2 w-full">
+                        {{ __('Sesi 1 (Tambah 45 Menit)') }}
+                    </x-primary-button>
                 </div>
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <x-primary-button class="ms-3">
                     {{ __('Save') }}</x-primary-button>
-                <x-secondary-button x-on:click="$dispatch('close')" >
+                <x-secondary-button x-on:click="$dispatch('close')">
                     {{ __('Cancel') }}
                 </x-secondary-button>
             </div>
         </form>
+
+        <script>
+        document.getElementById('session1Button').addEventListener('click', function(event) {
+            event.preventDefault();
+
+            let timeInput = document.getElementById('time');
+            let currentTime = timeInput.value;
+
+            let [hours, minutes, seconds] = currentTime.split(':').map(Number);
+            minutes += 45;
+
+            if (minutes >= 60) {
+                hours += Math.floor(minutes / 60);
+                minutes = minutes % 60;
+            }
+
+            timeInput.value =
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            alert('90 minutes added to the time field.');
+        });
+        </script>
     </x-modal>
+
 </x-app-layout>
 
 <script>
-    function openEditModal(id, cardName, time, userId) {
-        document.getElementById('editForm').action = `/timer-cards/${id}`;
-        document.getElementById('card_name').value = cardName;
-        document.getElementById('time').value = time;
+function openEditModal(id, cardName, userId, currentTime) {
+    document.getElementById('editForm').action = `/timer-cards/${id}`;
+    document.getElementById('card_name').value = cardName;
 
-        const userSelect = document.getElementById('userSelect');
-        userSelect.selectedIndex = 0;
-        if (userId) {
-            userSelect.value = userId;
-        }
-
-        window.dispatchEvent(new CustomEvent('open-modal', { detail: 'edit-modal' }));
+    const userSelect = document.getElementById('userSelect');
+    userSelect.selectedIndex = 0;
+    if (userId) {
+        userSelect.value = userId;
     }
 
-    function toggleModal() {
-        window.dispatchEvent(new CustomEvent('close-modal', { detail: 'edit-modal' }));
+    document.getElementById('time').value = currentTime || '01:30:00';
+
+    window.dispatchEvent(new CustomEvent('open-modal', {
+        detail: 'edit-modal'
+    }));
+}
+
+document.getElementById('session1Button').addEventListener('click', function(event) {
+    event.preventDefault();
+
+    const timeInput = document.getElementById('time');
+    let [hours, minutes, seconds] = timeInput.value.split(':').map(Number);
+
+    // Add 90 minutes to the current time
+    minutes += 90;
+
+    // Handle minutes overflow
+    if (minutes >= 60) {
+        hours += Math.floor(minutes / 60);
+        minutes = minutes % 60;
     }
+
+    // Format the new time value
+    const newTimeValue =
+        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    timeInput.value = newTimeValue;
+
+    console.log("Updated Time:", newTimeValue);
+
+    // Optionally, submit the form or proceed with other actions
+    // document.getElementById('editForm').submit();
+});
+
+
+function toggleModal() {
+    window.dispatchEvent(new CustomEvent('close-modal', {
+        detail: 'edit-modal'
+    }));
+}
 </script>

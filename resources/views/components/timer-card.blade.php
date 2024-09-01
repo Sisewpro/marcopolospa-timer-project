@@ -2,7 +2,8 @@
     <div class="flex justify-between items-center">
         <h2 class="text-lg font-semibold text-gray-800">{{ $cardName }}</h2>
         <div class="flex space-x-2">
-            <button class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600" onclick="openEditModal('{{ $id }}', '{{ $cardName }}', '{{ $time }}', '{{ $userName }}')">Ubah</button>
+            <button class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
+                onclick="openEditModal('{{ $id }}', '{{ $cardName }}', '{{ $userName }}')">Ubah</button>
             <form action="{{ route('timer-cards.destroy', $id) }}" method="POST">
                 @csrf
                 @method('DELETE')
@@ -40,74 +41,85 @@
     </div>
 
     <div class="mt-4 flex justify-center space-x-2">
-        <button id="startTimer_{{ $id }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Mulai</button>
-        <button id="pauseTimer_{{ $id }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Jeda</button>
-        <button id="resetTimer_{{ $id }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</button>
+        <button id="startTimer_{{ $id }}"
+            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Mulai</button>
+        <button id="pauseTimer_{{ $id }}"
+            class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Jeda</button>
+        <button id="resetTimer_{{ $id }}"
+            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</button>
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeTimerCard("{{ $id }}", "{{ $time }}");
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTimerCard("{{ $id }}", "{{ $time }}");
+});
+
+function initializeTimerCard(cardId, initialTime) {
+    let timerInterval;
+    let totalSeconds = parseTimeInput(initialTime);
+
+    function parseTimeInput(time) {
+        const [hrs, mins, secs] = time.split(':').map(Number);
+        return (hrs * 3600) + (mins * 60) + secs;
+    }
+
+    function updateTimerDisplay() {
+        const hrs = Math.floor((totalSeconds % 86400) / 3600);
+        const mins = Math.floor((totalSeconds % 3600) / 60);
+        const secs = totalSeconds % 60;
+
+        document.getElementById('hours_' + cardId).style.setProperty('--value', hrs);
+        document.getElementById('minutes_' + cardId).style.setProperty('--value', mins);
+        document.getElementById('seconds_' + cardId).style.setProperty('--value', secs);
+    }
+
+    function updateStatus(status) {
+        const statusDisplay = document.getElementById('statusDisplay_' + cardId);
+        statusDisplay.textContent = status;
+        statusDisplay.classList.toggle('text-green-500', status === "Ready");
+        statusDisplay.classList.toggle('text-gray-500', status === "Running");
+    }
+
+    document.getElementById('startTimer_' + cardId).addEventListener('click', () => {
+        if (!timerInterval) {
+            // Set the timer to 90 minutes (2700 seconds)
+            totalSeconds = 5400;
+
+            timerInterval = setInterval(() => {
+                totalSeconds--;
+                updateTimerDisplay();
+                updateStatus("Running");
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    updateStatus("Ready");
+                    alert("Waktu Habis!");
+                }
+            }, 1000);
+        }
     });
 
-    function initializeTimerCard(cardId, initialTime) {
-        let timerInterval;
-        let totalSeconds = parseTimeInput(initialTime);
-
-        function parseTimeInput(time) {
-            const [hrs, mins, secs] = time.split(':').map(Number);
-            return (hrs * 3600) + (mins * 60) + secs;
-        }
-
-        function updateTimerDisplay() {
-            const days = Math.floor(totalSeconds / 86400);
-            const hrs = Math.floor((totalSeconds % 86400) / 3600);
-            const mins = Math.floor((totalSeconds % 3600) / 60);
-            const secs = totalSeconds % 60;
-
-            document.getElementById('hours_' + cardId).style.setProperty('--value', hrs);
-            document.getElementById('minutes_' + cardId).style.setProperty('--value', mins);
-            document.getElementById('seconds_' + cardId).style.setProperty('--value', secs);
-        }
-
-        function updateStatus(status) {
-            const statusDisplay = document.getElementById('statusDisplay_' + cardId);
-            statusDisplay.textContent = status;
-            statusDisplay.classList.toggle('text-green-500', status === "Ready");
-            statusDisplay.classList.toggle('text-gray-500', status === "Running");
-        }
-
-        document.getElementById('startTimer_' + cardId).addEventListener('click', () => {
-            if (!timerInterval && totalSeconds > 0) {
-                timerInterval = setInterval(() => {
-                    totalSeconds--;
-                    updateTimerDisplay();
-                    updateStatus("Running");
-                    if (totalSeconds <= 0) {
-                        clearInterval(timerInterval);
-                        timerInterval = null;
-                        updateStatus("Ready");
-                        alert("Waktu Habis!");
-                    }
-                }, 1000);
-            }
-        });
-
-        document.getElementById('pauseTimer_' + cardId).addEventListener('click', () => {
+    document.getElementById('pauseTimer_' + cardId).addEventListener('click', () => {
+        if (timerInterval) {
             clearInterval(timerInterval);
             timerInterval = null;
-            updateStatus("Ready");
-        });
+            updateStatus("Paused");
+        }
+    });
 
-        document.getElementById('resetTimer_' + cardId).addEventListener('click', () => {
+    document.getElementById('resetTimer_' + cardId).addEventListener('click', () => {
+        if (timerInterval) {
             clearInterval(timerInterval);
             timerInterval = null;
-            totalSeconds = parseTimeInput(initialTime);
-            updateTimerDisplay();
-            updateStatus("Ready");
-        });
+        }
+        totalSeconds = parseTimeInput(initialTime);
+        updateTimerDisplay();
+        updateStatus("Ready");
+    });
 
-        updateTimerDisplay(); // Update display when page loads
-    }
+    // Initialize the timer display
+    updateTimerDisplay();
+    updateStatus("Ready");
+}
 </script>
