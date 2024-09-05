@@ -1,6 +1,6 @@
-<div id="card_{{ $id }}" class="bg-base-100 shadow-md rounded-lg p-4 mt-4 max-w-sm mx-auto">
+<div id="card_{{ $id }}" class="bg-white shadow-md rounded-lg p-4 mt-4 max-w-sm mx-auto">
     <div class="flex justify-between items-center">
-        <h2 class="text-lg font-semibold text-base-content">{{ $cardName }}</h2>
+        <h2 class="text-lg font-semibold text-gray-800">{{ $cardName }}</h2>
         <div class="flex space-x-2">
             <span class="cursor-pointer text-base hover:text-warning" onclick="openEditModal('{{ $id }}', '{{ $cardName }}', '{{ $userName }}', '{{ $time }}')">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
