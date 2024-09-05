@@ -1,6 +1,6 @@
-<div id="card_{{ $id }}" class="bg-white shadow-md rounded-lg p-4 mt-4 max-w-sm mx-auto">
+<div id="card_{{ $id }}" class="bg-base-100 shadow-md rounded-lg p-4 mt-4 max-w-sm mx-auto">
     <div class="flex justify-between items-center">
-        <h2 class="text-lg font-semibold text-gray-800">{{ $cardName }}</h2>
+        <h2 class="text-lg font-semibold text-base-500">{{ $cardName }}</h2>
         <div class="flex space-x-2">
             <span class="cursor-pointer text-base hover:text-warning" onclick="openEditModal('{{ $id }}', '{{ $cardName }}', '{{ $userName }}', '{{ $time }}')">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
@@ -11,12 +11,12 @@
         </div>
     </div>
 
-    <div class="mt-2 text-sm text-gray-600">
+    <div class="mt-2 text-sm text-base-400">
         <p>{{ $userName }}</p>
     </div>
 
     <div class="text-center mt-2">
-        <label id="statusDisplay_{{ $id }}" class="block text-lg font-bold text-green-500">{{ $status }}</label>
+        <label id="statusDisplay_{{ $id }}" class="block text-lg font-bold text-accent">{{ $status }}</label>
         <div class="text-2xl font-mono countdown mt-4">
             <span id="hours_{{ $id }}" style="--value:1;"></span>
             :
@@ -27,12 +27,19 @@
     </div>
 
     <div>
-        <input type="text" id="customer_{{ $id }}" name="customer" class="w-full text-center p-2 border-none rounded" placeholder="Customer">
+        <input type="text" id="customer_{{ $id }}" name="customer" class="w-full text-center p-2 input rounded" placeholder="Customer" required>
     </div>
 
-    <div class="mt-4 flex justify-center space-x-2">
-        <button id="startTimer_{{ $id }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Mulai</button>
-        <button id="resetTimer_{{ $id }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</button>
+    <div class="flex justify-center space-x-2 items-center">
+        <button id="startTimer_{{ $id }}" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
+
+        <div class="dropdown">
+            <div tabindex="0" role="button" class="btn btn-ghost m-1">Option</div>
+            <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                <li><a data-session="45">+1 Session</a></li>
+                <li><a data-session="90">+2 Sessions</a></li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -45,11 +52,13 @@
         let timerInterval;
         let totalSeconds = parseTimeInput(initialTime);
 
+        // Function to parse time string "HH:MM:SS" into total seconds
         function parseTimeInput(time) {
             const [hrs, mins, secs] = time.split(':').map(Number);
             return (hrs * 3600) + (mins * 60) + secs;
         }
 
+        // Function to update the timer display
         function updateTimerDisplay() {
             const hrs = Math.floor(totalSeconds / 3600);
             const mins = Math.floor((totalSeconds % 3600) / 60);
@@ -60,6 +69,7 @@
             document.getElementById('seconds_' + cardId).style.setProperty('--value', secs);
         }
 
+        // Function to update status (Ready or Running)
         function updateStatus(status) {
             const statusDisplay = document.getElementById('statusDisplay_' + cardId);
             statusDisplay.textContent = status;
@@ -67,30 +77,52 @@
             statusDisplay.classList.toggle('text-gray-500', status === "Running");
         }
 
-        document.getElementById('startTimer_' + cardId).addEventListener('click', () => {
-            if (!timerInterval && totalSeconds > 0) {
-                timerInterval = setInterval(() => {
+        // Event listener for the "Mulai" button to start the timer
+        document.getElementById('startTimer_' + cardId).addEventListener('click', (event) => {
+            const customerInput = document.getElementById('customer_' + cardId);
+
+            // HTML will validate this field because it's marked as required
+            if (!customerInput.checkValidity()) {
+                customerInput.reportValidity();  // Show the validation message
+                return;
+            }
+
+            // Clear any existing interval to reset the timer
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            // Update the status to "Running"
+            updateStatus('Running');
+
+            // Start the countdown
+            timerInterval = setInterval(() => {
+                if (totalSeconds > 0) {
                     totalSeconds--;
                     updateTimerDisplay();
-                    updateStatus("Running");
-                    if (totalSeconds <= 0) {
-                        clearInterval(timerInterval);
-                        timerInterval = null;
-                        updateStatus("Ready");
-                        alert("Waktu Habis!");
-                    }
-                }, 1000);
-            }
+                } else {
+                    clearInterval(timerInterval);
+                    updateStatus('Ready');
+                }
+            }, 1000);
         });
 
-        document.getElementById('resetTimer_' + cardId).addEventListener('click', () => {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            totalSeconds = parseTimeInput(initialTime);
+        // Function to add time to the timer (sessions)
+        function addSession(minutes) {
+            totalSeconds += minutes * 60;
             updateTimerDisplay();
-            updateStatus("Ready");
+        }
+
+        // Event listener for session addition options in the dropdown
+        document.querySelectorAll(`#card_${cardId} .dropdown a`).forEach(item => {
+            item.addEventListener('click', (event) => {
+                event.preventDefault();
+                const sessionMinutes = parseInt(event.target.getAttribute('data-session'), 10);
+                addSession(sessionMinutes);  // Add session minutes
+            });
         });
 
-        updateTimerDisplay(); // Update display when page loads
+        // Initial display of the timer when the page is loaded
+        updateTimerDisplay(); 
     }
 </script>
