@@ -48,23 +48,18 @@ class TimerCardController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validasi input data
         $request->validate([
             'card_name' => 'required|string|max:255',
             'time' => 'required|date_format:H:i:s',
-            'user_id' => 'nullable|exists:users,id', // Pastikan user_id valid
+            'user_id' => 'nullable|exists:users,id',
         ]);
 
-        // Temukan TimerCard berdasarkan ID
         $timerCard = TimerCard::findOrFail($id);
-
-        // Update nilai card
         $timerCard->card_name = $request->input('card_name');
         $timerCard->time = $request->input('time');
-        $timerCard->user_id = $request->input('user_id') ?: null; // Update user_id atau null
+        $timerCard->user_id = $request->input('user_id') ?: null;
         $timerCard->save();
 
-        // Redirect setelah update
         return redirect()->route('dashboard')->with('success', 'Locker berhasil diperbarui!');
     }
 }
