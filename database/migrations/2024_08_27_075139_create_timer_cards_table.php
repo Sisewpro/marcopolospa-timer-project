@@ -9,13 +9,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::create('timer_cards', function (Blueprint $table) {
             $table->id();
-            $table->string('card_name');
-            $table->time('time')->default('00:00:00');
-            $table->enum('status', ['Ready', 'Running'])->default('Ready');
+            $table->string('card_name'); // Nama card
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null'); // Relasi ke tabel users, nullable jika staff belum dipilih
+            $table->string('customer')->nullable(); // Nama pelanggan opsional
+            $table->char('time', 8)->default('01:30:00'); // Waktu dalam format 00:00:00, default 1 jam 30 menit
+            $table->string('status')->default('Ready'); // Status card, default 'Ready'
             $table->timestamps();
         });
     }
