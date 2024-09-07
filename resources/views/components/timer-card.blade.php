@@ -31,6 +31,7 @@
         <input type="text" id="customer_{{ $id }}" name="customer" class="w-full text-center p-2 input rounded" placeholder="Customer" required>
     </div>
 
+
     <div class="flex justify-center space-x-2 items-center mt-4">
         <button id="startStopButton_{{ $id }}" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
 
@@ -45,14 +46,13 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         initializeTimerCard("{{ $id }}", "01:30:00");
     });
 
     function initializeTimerCard(cardId, initialTime) {
         let timerInterval;
         let totalSeconds = parseTimeInput(initialTime);
-        let isRunning = false;
 
         function parseTimeInput(time) {
             const [hrs, mins, secs] = time.split(':').map(Number);
@@ -72,111 +72,34 @@
         function updateStatus(status) {
             const statusDisplay = document.getElementById('statusDisplay_' + cardId);
             statusDisplay.textContent = status;
-            statusDisplay.classList.toggle('text-accent', status === "Ready");
-            statusDisplay.classList.toggle('text-base-300', status === "Running");
+            statusDisplay.classList.toggle('text-green-500', status === "Ready");
+            statusDisplay.classList.toggle('text-gray-500', status === "Running");
         }
 
-        function startTimer() {
-            const customerInput = document.getElementById('customer_' + cardId);
-
-            // Validasi: Jika input customer kosong, jangan jalankan timer
-            if (customerInput.value.trim() === "") {
-                customerInput.classList.add('border-red-500'); // Menambahkan border merah sebagai indikator
-                return; // Hentikan eksekusi jika input customer kosong
-            } else {
-                customerInput.classList.remove('border-red-500'); // Menghapus border merah jika sudah diisi
-            }
-
-            if (!isRunning) {
-                isRunning = true;
-                updateStatus('Running');
-                document.getElementById('startStopButton_' + cardId).textContent = 'Stop';
-
-                // Simpan data ke server
-                fetch(`/timer-cards`, {  // Menghapus ID dari URL untuk membuat entri baru
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        customer: customerInput.value,
-                        time: totalSeconds,
-                        cardName: document.getElementById('statusDisplay_' + cardId).textContent
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Data berhasil disimpan');
-                        // Jika ingin menambahkan ID baru setelah entri berhasil, bisa diletakkan di sini
-                    }
-                });
-
-                // Mulai timer
+        document.getElementById('startTimer_' + cardId).addEventListener('click', () => {
+            if (!timerInterval && totalSeconds > 0) {
                 timerInterval = setInterval(() => {
-                    if (totalSeconds > 0) {
-                        totalSeconds--;
-                        updateTimerDisplay();
-                    } else {
-                        stopTimer();
+                    totalSeconds--;
+                    updateTimerDisplay();
+                    updateStatus("Running");
+                    if (totalSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        updateStatus("Ready");
+                        alert("Waktu Habis!");
                     }
                 }, 1000);
             }
-        }
+        });
 
-        function stopTimer() {
+        document.getElementById('resetTimer_' + cardId).addEventListener('click', () => {
             clearInterval(timerInterval);
-            totalSeconds = parseTimeInput("01:30:00");
+            timerInterval = null;
+            totalSeconds = parseTimeInput(initialTime);
             updateTimerDisplay();
-            isRunning = false;
-            updateStatus('Ready');
-            document.getElementById('startStopButton_' + cardId).textContent = 'Mulai';
-        }
-
-        document.getElementById('startStopButton_' + cardId).addEventListener('click', function () {
-            if (isRunning) {
-                stopTimer();
-            } else {
-                startTimer();
-                // Kirim data ke server untuk update waktu dan status
-                fetch(`/timer-cards/${cardId}/start`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        customer: document.getElementById('customer_' + cardId).value,
-                        time: totalSeconds,
-                    })
-                });
-            }
+            updateStatus("Ready");
         });
 
-        document.querySelectorAll(`#card_${cardId} .dropdown a`).forEach(item => {
-            item.addEventListener('click', (event) => {
-                event.preventDefault();
-                const sessionMinutes = parseInt(event.target.getAttribute('data-session'), 10);
-                addSession(sessionMinutes);
-            });
-        });
-
-        function addSession(sessionMinutes) {
-            totalSeconds += sessionMinutes * 60;
-            updateTimerDisplay();
-            fetch(`/timer-cards/${cardId}/add-session`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    sessionMinutes: sessionMinutes
-                })
-            });
-        }
-
-        updateTimerDisplay();
+        updateTimerDisplay(); // Update display when page loads
     }
 </script>
