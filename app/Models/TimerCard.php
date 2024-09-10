@@ -10,13 +10,18 @@ class TimerCard extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'card_name', 'user_id', 'time', 'status',
-    ];
+    protected $fillable = ['customer', 'time', 'card_name', 'status', 'user_id'];
 
+    /**
+     * Relasi dengan model User
+     */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function getFormattedTimeAttribute()
+    {
+        return $this->time; // Waktu sudah dalam format H:i:s
     }
 }
-
