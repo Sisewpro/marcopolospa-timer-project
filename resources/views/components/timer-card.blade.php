@@ -3,10 +3,13 @@
         <h2 class="text-lg font-semibold text-base-500">{{ $cardName }}</h2>
         <div class="flex space-x-2">
             <!-- ikon edit -->
-            <span class="cursor-pointer text-base hover:text-warning" onclick="openEditModal('{{ $id }}', '{{ $cardName }}', '{{ $userName }}', '{{ $time }}')">
+            <span class="cursor-pointer text-base hover:text-warning"
+                onclick="openEditModal('{{ $id }}', '{{ $cardName }}', '{{ $userName }}', '{{ $time }}')">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                    <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
-                    <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
+                    <path
+                        d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
+                    <path
+                        d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
                 </svg>
             </span>
         </div>
@@ -28,7 +31,8 @@
     </div>
 
     <div class="mt-4">
-        <input type="text" id="customer_{{ $id }}" name="customer" class="w-full text-center p-2 input rounded" placeholder="Customer" required>
+        <input type="text" id="customer_{{ $id }}" name="customer" class="w-full text-center p-2 input rounded"
+            placeholder="Customer" required>
     </div>
 
 
@@ -45,10 +49,69 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeTimerCard("{{ $id }}", "01:30:00");
+<!-- <script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTimerCard("{{ $id }}", "01:30:00");
+});
+
+function initializeTimerCard(cardId, initialTime) {
+    let timerInterval;
+    let totalSeconds = parseTimeInput(initialTime);
+
+    function parseTimeInput(time) {
+        const [hrs, mins, secs] = time.split(':').map(Number);
+        return (hrs * 3600) + (mins * 60) + secs;
+    }
+
+    function updateTimerDisplay() {
+        const hrs = Math.floor(totalSeconds / 3600);
+        const mins = Math.floor((totalSeconds % 3600) / 60);
+        const secs = totalSeconds % 60;
+
+        document.getElementById('hours_' + cardId).style.setProperty('--value', hrs);
+        document.getElementById('minutes_' + cardId).style.setProperty('--value', mins);
+        document.getElementById('seconds_' + cardId).style.setProperty('--value', secs);
+    }
+
+    function updateStatus(status) {
+        const statusDisplay = document.getElementById('statusDisplay_' + cardId);
+        statusDisplay.textContent = status;
+        statusDisplay.classList.toggle('text-green-500', status === "Ready");
+        statusDisplay.classList.toggle('text-gray-500', status === "Running");
+    }
+
+    document.getElementById('startTimer_' + cardId).addEventListener('click', () => {
+        if (!timerInterval && totalSeconds > 0) {
+            timerInterval = setInterval(() => {
+                totalSeconds--;
+                updateTimerDisplay();
+                updateStatus("Running");
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    updateStatus("Ready");
+                    alert("Waktu Habis!");
+                }
+            }, 1000);
+        }
     });
+
+    document.getElementById('resetTimer_' + cardId).addEventListener('click', () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        totalSeconds = parseTimeInput(initialTime);
+        updateTimerDisplay();
+        updateStatus("Ready");
+    });
+
+    updateTimerDisplay(); // Update display when page loads
+}
+</script> -->
+
+<!-- Open Edit Modal Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTimerCard("{{ $id }}", "01:30:00");
 
     function initializeTimerCard(cardId, initialTime) {
         let timerInterval;
@@ -76,7 +139,7 @@
             statusDisplay.classList.toggle('text-gray-500', status === "Running");
         }
 
-        document.getElementById('startTimer_' + cardId).addEventListener('click', () => {
+        document.getElementById('startStopButton_' + cardId).addEventListener('click', () => {
             if (!timerInterval && totalSeconds > 0) {
                 timerInterval = setInterval(() => {
                     totalSeconds--;
@@ -90,16 +153,72 @@
                     }
                 }, 1000);
             }
+
+            // Send AJAX request to update timer status to "Running"
+            fetch(`/update-timer/${cardId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        status: 'Running',
+                        started_at: new Date().toISOString()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert("Failed to update timer status!");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred while updating timer status.");
+                });
         });
 
-        document.getElementById('resetTimer_' + cardId).addEventListener('click', () => {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            totalSeconds = parseTimeInput(initialTime);
-            updateTimerDisplay();
-            updateStatus("Ready");
+        document.getElementById('customer_' + cardId).addEventListener('change', function() {
+            let customer = this.value;
+            let cardId = '{{ $id }}';
+
+            if (customer) {
+                // Send an AJAX request to update the customer in the database
+                fetch(`/update-customer/${cardId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            customer: customer
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Customer updated successfully!");
+                        } else {
+                            alert("Failed to update customer!");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("An error occurred while updating customer.");
+                    });
+            }
         });
 
         updateTimerDisplay(); // Update display when page loads
     }
+});
+
+function openEditModal(id, cardName, userName, time) {
+    document.getElementById('editForm').action = '/update-locker/' + id;
+    document.getElementById('card_name').value = cardName;
+    document.getElementById('userSelect').value = userName;
+
+    const modal = document.querySelector(`[x-modal="edit-modal"]`);
+    modal.dispatchEvent(new Event('open'));
+}
 </script>

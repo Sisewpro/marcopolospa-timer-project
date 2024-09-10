@@ -311,4 +311,4 @@
 <?php $component = $__componentOriginal69dc84650370d1d4dc1b42d016d7226b; ?>
 <?php unset($__componentOriginal69dc84650370d1d4dc1b42d016d7226b); ?>
 <?php endif; ?>
-<?php /**PATH C:\laragon\www\spa-counter\resources\views/auth/register.blade.php ENDPATH**/ ?>
+<?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views/auth/register.blade.php ENDPATH**/ ?>

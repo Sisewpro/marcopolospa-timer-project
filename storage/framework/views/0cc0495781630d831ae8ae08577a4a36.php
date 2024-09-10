@@ -48,4 +48,4 @@
         </div>
     </body>
 </html>
-<?php /**PATH C:\laragon\www\spa-counter\resources\views/layouts/guest.blade.php ENDPATH**/ ?>
+<?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views/layouts/guest.blade.php ENDPATH**/ ?>

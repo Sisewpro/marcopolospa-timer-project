@@ -1,4 +1,4 @@
-<footer class="footer bg-white text-base-content py-10">
+<footer class="footer bg-base-100 text-base-content py-10">
   <nav>
     <h6 class="footer-title">Services</h6>
     <a class="link link-hover">Internet Service Provider</a>
@@ -35,7 +35,7 @@
     </fieldset>
   </form>
 </footer>
-<footer class="footer bg-white text-base-content border-base-300 border-t py-4">
+<footer class="footer bg-base-100 text-base-content border-base-300 border-t py-4">
   <aside class="grid-flow-col items-center">
     <?php if (isset($component)) { $__componentOriginal8892e718f3d0d7a916180885c6f012e7 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal8892e718f3d0d7a916180885c6f012e7 = $attributes; } ?>
