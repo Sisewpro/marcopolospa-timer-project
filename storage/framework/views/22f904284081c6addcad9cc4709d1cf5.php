@@ -13,6 +13,7 @@
             <?php echo e(__('Wealthness Spa')); ?>
 
         </h2>
+        <input type="checkbox" value="dark" class="toggle theme-controller" />
      <?php $__env->endSlot(); ?>
 
     <div class="mt-6">

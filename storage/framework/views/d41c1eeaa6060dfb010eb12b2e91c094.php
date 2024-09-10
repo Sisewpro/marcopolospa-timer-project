@@ -1,9 +1,10 @@
-<div id="card_<?php echo e($id); ?>" class="bg-white shadow-md rounded-lg p-4 mt-4 max-w-sm mx-auto">
+<div id="card_<?php echo e($id); ?>" class="bg-base-100 shadow-md rounded-lg p-4 mt-4 max-w-sm mx-auto">
     <div class="flex justify-between items-center">
-        <h2 class="text-lg font-semibold text-gray-800"><?php echo e($cardName); ?></h2>
+        <h2 class="text-lg font-semibold text-base-500"><?php echo e($cardName); ?></h2>
         <div class="flex space-x-2">
+            <!-- ikon edit -->
             <span class="cursor-pointer text-base hover:text-warning" onclick="openEditModal('<?php echo e($id); ?>', '<?php echo e($cardName); ?>', '<?php echo e($userName); ?>', '<?php echo e($time); ?>')">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                     <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
                     <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
                 </svg>
@@ -11,12 +12,12 @@
         </div>
     </div>
 
-    <div class="mt-2 text-sm text-gray-600">
+    <div class="mt-2 text-sm text-base-400">
         <p><?php echo e($userName); ?></p>
     </div>
 
     <div class="text-center mt-2">
-        <label id="statusDisplay_<?php echo e($id); ?>" class="block text-lg font-bold text-green-500"><?php echo e($status); ?></label>
+        <label id="statusDisplay_<?php echo e($id); ?>" class="block text-lg font-bold text-accent"><?php echo e($status); ?></label>
         <div class="text-2xl font-mono countdown mt-4">
             <span id="hours_<?php echo e($id); ?>" style="--value:1;"></span>
             :
@@ -26,13 +27,21 @@
         </div>
     </div>
 
-    <div>
-        <input type="text" id="customer_<?php echo e($id); ?>" name="customer" class="w-full text-center p-2 border-none rounded" placeholder="Customer">
+    <div class="mt-4">
+        <input type="text" id="customer_<?php echo e($id); ?>" name="customer" class="w-full text-center p-2 input rounded" placeholder="Customer" required>
     </div>
 
-    <div class="mt-4 flex justify-center space-x-2">
-        <button id="startTimer_<?php echo e($id); ?>" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Mulai</button>
-        <button id="resetTimer_<?php echo e($id); ?>" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</button>
+
+    <div class="flex justify-center space-x-2 items-center mt-4">
+        <button id="startStopButton_<?php echo e($id); ?>" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
+
+        <div class="dropdown">
+            <div tabindex="0" role="button" class="btn btn-ghost m-1">Option</div>
+            <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                <li><a data-session="45">+1 Session</a></li>
+                <li><a data-session="90">+2 Sessions</a></li>
+            </ul>
+        </div>
     </div>
 </div>
 

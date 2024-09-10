@@ -15,12 +15,12 @@
         <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div class="min-h-screen bg-base-200 dark:bg-gray-900">
             <?php echo $__env->make('layouts.navigation', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
             <!-- Page Heading -->
             <?php if(isset($header)): ?>
-                <header class="bg-white dark:bg-gray-800 shadow">
+                <header class="bg-base-100 dark:bg-gray-800 shadow">
                     <div class="mx-auto py-6 sm:px-8 lg:px-10">
                         <?php echo e($header); ?>
 
@@ -34,7 +34,7 @@
 
             </main>
         </div>
-        <div class="bg-white">
+        <div class="bg-base-100">
         <div class="mx-auto sm:px-8 lg:px-10">
             <?php if (isset($component)) { $__componentOriginal99051027c5120c83a2f9a5ae7c4c3cfa = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal99051027c5120c83a2f9a5ae7c4c3cfa = $attributes; } ?>
