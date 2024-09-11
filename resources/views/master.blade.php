@@ -55,11 +55,11 @@
                             <thead>
                                 <tr>
                                     <th>Card Name</th>
+                                    <th>Locker</th>
                                     <th>Customer</th>
-                                    <th>Time</th>
+                                    <th>Session</th>
                                     <th>Status</th>
                                     <th>Date</th>
-                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>

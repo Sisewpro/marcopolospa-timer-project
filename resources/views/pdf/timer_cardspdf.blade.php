@@ -82,23 +82,27 @@
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th>No.</th>
                 <th>Card Name</th>
                 <th>Customer</th>
-                <th>Time</th>
+                <th>Session</th>
                 <th>Status</th>
                 <th>Date</th>
+                <th>Time</th>
             </tr>
         </thead>
         <tbody>
             @foreach($timerCards as $timerCard)
             <tr>
-                <td>{{ $timerCard->id }}</td>
+                <td>{{ $loop->iteration }}</td>
                 <td>{{ $timerCard->card_name }}</td>
                 <td>{{ $timerCard->customer }}</td>
                 <td>{{ $timerCard->time }}</td>
                 <td>{{ $timerCard->status }}</td>
-                <td>{{ $timerCard->formatted_date }}</td>
+                <td>{{ \Carbon\Carbon::parse($timerCard->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('j F Y') }}
+                </td>
+                <td>{{ \Carbon\Carbon::parse($timerCard->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('H:i:s') }}
+                    WIB</td>
             </tr>
             @endforeach
         </tbody>
