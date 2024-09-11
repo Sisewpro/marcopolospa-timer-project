@@ -48,70 +48,56 @@
         </div>
     </div>
 </div>
-
-<!-- <script>
-document.addEventListener('DOMContentLoaded', function() {
-    initializeTimerCard("<?php echo e($id); ?>", "01:30:00");
-});
-
-function initializeTimerCard(cardId, initialTime) {
-    let timerInterval;
-    let totalSeconds = parseTimeInput(initialTime);
-
-    function parseTimeInput(time) {
-        const [hrs, mins, secs] = time.split(':').map(Number);
-        return (hrs * 3600) + (mins * 60) + secs;
-    }
-
-    function updateTimerDisplay() {
-        const hrs = Math.floor(totalSeconds / 3600);
-        const mins = Math.floor((totalSeconds % 3600) / 60);
-        const secs = totalSeconds % 60;
-
-        document.getElementById('hours_' + cardId).style.setProperty('--value', hrs);
-        document.getElementById('minutes_' + cardId).style.setProperty('--value', mins);
-        document.getElementById('seconds_' + cardId).style.setProperty('--value', secs);
-    }
-
-    function updateStatus(status) {
-        const statusDisplay = document.getElementById('statusDisplay_' + cardId);
-        statusDisplay.textContent = status;
-        statusDisplay.classList.toggle('text-green-500', status === "Ready");
-        statusDisplay.classList.toggle('text-gray-500', status === "Running");
-    }
-
-    document.getElementById('startTimer_' + cardId).addEventListener('click', () => {
-        if (!timerInterval && totalSeconds > 0) {
-            timerInterval = setInterval(() => {
-                totalSeconds--;
-                updateTimerDisplay();
-                updateStatus("Running");
-                if (totalSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    updateStatus("Ready");
-                    alert("Waktu Habis!");
-                }
-            }, 1000);
-        }
-    });
-
-    document.getElementById('resetTimer_' + cardId).addEventListener('click', () => {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        totalSeconds = parseTimeInput(initialTime);
-        updateTimerDisplay();
-        updateStatus("Ready");
-    });
-
-    updateTimerDisplay(); // Update display when page loads
-}
-</script> -->
-
 <!-- Open Edit Modal Script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    initializeTimerCard("<?php echo e($id); ?>", "01:30:00");
+    initializeTimerCard("<?php echo e($id); ?>", "<?php echo e($time); ?>");
+
+    function initializeCustomerInput(cardId) {
+        const customerInput = document.getElementById('customer_' + cardId);
+
+        // Retrieve the saved customer value from localStorage
+        const savedCustomer = localStorage.getItem('customer_' + cardId);
+
+        if (savedCustomer) {
+            // Set the placeholder to the saved value
+            customerInput.placeholder = savedCustomer;
+        }
+
+        // Add event listener for changes in the customer input
+        customerInput.addEventListener('change', function() {
+            let customer = this.value;
+
+            if (customer) {
+                // Save the customer value to localStorage
+                localStorage.setItem('customer_' + cardId, customer);
+
+                // Send AJAX request to update customer in the database
+                fetch(`/update-customer/${cardId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                        },
+                        body: JSON.stringify({
+                            customer: customer
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log("Customer updated successfully!");
+                        } else {
+                            console.error("Failed to update customer.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("An error occurred while updating customer.");
+                    });
+            }
+        });
+    }
 
     function initializeTimerCard(cardId, initialTime) {
         let timerInterval;
@@ -140,6 +126,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         document.getElementById('startStopButton_' + cardId).addEventListener('click', () => {
+            const customerInput = document.getElementById('customer_' + cardId).value.trim();
+
+            if (!customerInput) {
+                alert("Please enter customer information before starting the timer.");
+                return; // Stop the function execution if customer information is not provided
+            }
+
             if (!timerInterval && totalSeconds > 0) {
                 timerInterval = setInterval(() => {
                     totalSeconds--;
@@ -152,73 +145,71 @@ document.addEventListener('DOMContentLoaded', function() {
                         alert("Waktu Habis!");
                     }
                 }, 1000);
-            }
 
-            // Send AJAX request to update timer status to "Running"
-            fetch(`/update-timer/${cardId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
-                    },
-                    body: JSON.stringify({
-                        status: 'Running',
-                        started_at: new Date().toISOString()
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        alert("Failed to update timer status!");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("An error occurred while updating timer status.");
-                });
-        });
-
-        document.getElementById('customer_' + cardId).addEventListener('change', function() {
-            let customer = this.value;
-            let cardId = '<?php echo e($id); ?>';
-
-            if (customer) {
-                // Send an AJAX request to update the customer in the database
-                fetch(`/update-customer/${cardId}`, {
+                // Send AJAX request to update timer status to "Running"
+                fetch(`/update-timer/${cardId}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
                         },
                         body: JSON.stringify({
-                            customer: customer
+                            status: 'Running',
+                            started_at: new Date().toISOString()
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
-                            alert("Customer updated successfully!");
-                        } else {
-                            alert("Failed to update customer!");
+                        if (!data.success) {
+                            alert("Failed to update timer status!");
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert("An error occurred while updating customer.");
+                        alert("An error occurred while updating timer status.");
                     });
             }
         });
 
-        updateTimerDisplay(); // Update display when page loads
+        // Initialize customer input for the card
+        initializeCustomerInput(cardId);
+
+        document.querySelector(`#card_${cardId} .dropdown-content`).addEventListener('click', function(event) {
+            const sessionDuration = event.target.getAttribute('data-session');
+            if (sessionDuration) {
+                totalSeconds += parseInt(sessionDuration, 10) * 60;
+                updateTimerDisplay();
+
+                // Convert total seconds back to "HH:MM:SS" format
+                const hrs = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+                const mins = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+                const secs = (totalSeconds % 60).toString().padStart(2, '0');
+                const updatedTime = `${hrs}:${mins}:${secs}`;
+
+                // Send AJAX request to update session in the database
+                fetch(`/update-session/${cardId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                        },
+                        body: JSON.stringify({
+                            additional_seconds: parseInt(sessionDuration, 10) * 60,
+                            time: updatedTime // send updated time
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            console.error("Gagal memperbarui sesi.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("An error occurred while updating session.");
+                    });
+            }
+        });
     }
 });
-
-function openEditModal(id, cardName, userName, time) {
-    document.getElementById('editForm').action = '/update-locker/' + id;
-    document.getElementById('card_name').value = cardName;
-    document.getElementById('userSelect').value = userName;
-
-    const modal = document.querySelector(`[x-modal="edit-modal"]`);
-    modal.dispatchEvent(new Event('open'));
-}
 </script><?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views/components/timer-card.blade.php ENDPATH**/ ?>
