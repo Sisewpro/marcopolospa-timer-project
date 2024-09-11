@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/timer-cards', [TimerCardController::class, 'store'])->name('timer-cards.store');
     Route::delete('/timer-cards/{id}', [TimerCardController::class, 'destroy'])->name('timer-cards.destroy');
     Route::post('/timer-cards/{id}/update', [TimerCardController::class, 'update'])->name('timer-cards.update');
+    Route::post('/update-session/{id}', [TimerCardController::class, 'updateSession']);
     Route::post('/update-customer/{id}', [TimerCardController::class, 'updateCustomer']);
     Route::put('/timer-cards/{id}', [TimerCardController::class, 'update'])->name('timer-cards.update');
 

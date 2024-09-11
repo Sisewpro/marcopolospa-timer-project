@@ -78,6 +78,24 @@ class TimerCardController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function updateSession(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'time' => 'required|string'
+        ]);
+    
+        $timerCard = TimerCard::find($id);
+        
+        if (!$timerCard) {
+            return response()->json(['success' => false, 'message' => 'Timer card not found.']);
+        }
+    
+        $timerCard->time = $validatedData['time'];
+        $timerCard->save();
+    
+        return response()->json(['success' => true, 'message' => 'Session updated successfully.']);
+    }    
+
     public function exportPdf(Request $request)
     {
         $request->validate([

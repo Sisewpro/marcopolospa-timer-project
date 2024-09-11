@@ -35,7 +35,6 @@
             placeholder="Customer" required>
     </div>
 
-
     <div class="flex justify-center space-x-2 items-center mt-4">
         <button id="startStopButton_{{ $id }}" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
 
@@ -48,6 +47,7 @@
         </div>
     </div>
 </div>
+
 <!-- Open Edit Modal Script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -128,9 +128,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('startStopButton_' + cardId).addEventListener('click', () => {
             const customerInput = document.getElementById('customer_' + cardId).value.trim();
 
-            if (!customerInput) {
-                alert("Please enter customer information before starting the timer.");
-                return; // Stop the function execution if customer information is not provided
+            if (customerInput.value === "" || customerInput.placeholder === "Customer") {
+                customerInput.reportValidity();
+                return;
             }
 
             if (!timerInterval && totalSeconds > 0) {
@@ -194,14 +194,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            additional_seconds: parseInt(sessionDuration, 10) * 60,
-                            time: updatedTime // send updated time
+                            time: updatedTime
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (!data.success) {
-                            console.error("Gagal memperbarui sesi.");
+                        if (data.success) {
+                            console.log("Session updated successfully!");
+                        } else {
+                            console.error("Failed to update session.");
                         }
                     })
                     .catch(error => {
@@ -210,6 +211,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
             }
         });
+
+        updateTimerDisplay();
     }
 });
 </script>
