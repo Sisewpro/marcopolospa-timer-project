@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TimerCardController;
+use App\Http\Controllers\MasterController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,6 +17,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Master route
+    Route::get('/master', [MasterController::class, 'index'])->name('master');
+    Route::get('/export/pdf', [TimerCardController::class, 'exportPdf'])->name('export.pdf');
+
 
     // Timer card routes
     // Menampilkan semua timer cards di halaman dashboard
@@ -37,4 +43,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/timer-cards/{id}', [TimerCardController::class, 'destroy'])->name('timer-cards.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

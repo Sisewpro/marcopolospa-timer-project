@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TimerCard;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -66,7 +67,7 @@ class TimerCardController extends Controller
     public function start(Request $request, $id)
     {
         $card = TimerCard::findOrFail($id);
-        
+
         // Pastikan input customer tidak kosong
         if (empty($request->customer)) {
             return response()->json(['success' => false, 'message' => 'Customer tidak boleh kosong.'], 400);
@@ -112,5 +113,29 @@ class TimerCardController extends Controller
         $minutes = floor(($totalSeconds % 3600) / 60);
         $seconds = $totalSeconds % 60;
         return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds); // Menggunakan sprintf, bukan gmdate
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+        ]);
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $query = TimerCard::query();
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+        $timerCards = $query->get();
+
+        $pdf = Pdf::loadView('pdf.timer_cardspdf', compact('timerCards'));
+
+        return $pdf->download('rekapdata_marcopolo.pdf');
     }
 }
