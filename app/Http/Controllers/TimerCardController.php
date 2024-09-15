@@ -4,119 +4,113 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TimerCard;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class TimerCardController extends Controller
 {
+    // Menampilkan semua locker card
     public function index()
     {
-        $timerCards = TimerCard::with('user')->get();
-        $users = User::all();
-
+        $timerCards = TimerCard::with('user')->get(); // Ambil semua card dengan user
+        $users = User::where('role', '!=', 'admin')->get(); // Ambil user non-admin untuk pilihan staff
         return view('dashboard', compact('timerCards', 'users'));
     }
 
+    // Menyimpan locker baru
     public function store(Request $request)
     {
-        $request->validate([
-            'customer' => 'nullable|string|max:255',
-        ]);
-
         $count = TimerCard::count();
 
         TimerCard::create([
             'card_name' => 'Locker ' . ($count + 1),
-            'customer' => $request->input('customer'), // Use request input for customer
-            'user_id' => $request->input('user_id'), // Use request input for user_id
-            'time' => '01:30:00',
+            'user_id' => $request->input('user_id'),
+            'customer' => null,
+            'time' => '01:30:00', // waktu default 90 menit
             'status' => 'Ready',
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Locker berhasil ditambahkan.');
+        return redirect()->route('dashboard')->with('success', 'Locker baru berhasil ditambahkan.');
     }
 
-    public function destroy($id)
-    {
-        $timerCard = TimerCard::findOrFail($id);
-        $timerCard->delete();
-
-        return redirect()->route('dashboard')->with('success', 'Locker berhasil dihapus.');
-    }
-
+    // Mengedit locker card
     public function update(Request $request, $id)
     {
         $request->validate([
             'card_name' => 'required|string|max:255',
-            'customer' => 'nullable|string|max:255',
-            'time' => 'required|date_format:H:i:s',
             'user_id' => 'nullable|exists:users,id',
+            'time' => 'required|string', // Validasi untuk input waktu
         ]);
 
-        $timerCard = TimerCard::findOrFail($id);
+        $card = TimerCard::findOrFail($id);
+        $card->update([
+            'card_name' => $request->input('card_name'),
+            'user_id' => $request->input('user_id'),
+            'time' => $request->input('time'), // Simpan waktu yang baru
+        ]);
 
-        $timerCard->card_name = $request->input('card_name');
-        $timerCard->customer = $request->input('customer');
-        $timerCard->time = $request->input('time');
-        $timerCard->user_id = $request->input('user_id');
-        $timerCard->save();
-
-        return redirect()->route('dashboard')->with('success', 'Card berhasil diperbarui!');
+        return redirect()->route('dashboard')->with('success', 'Locker berhasil diubah.');
     }
 
-    public function updateCustomer(Request $request, $id)
+
+    // Menghapus locker card
+    public function destroy($id)
     {
-        $request->validate([
-            'customer' => 'required|string|max:255',
-        ]);
+        $card = TimerCard::findOrFail($id);
+        $card->delete();
 
-        $timerCard = TimerCard::findOrFail($id);
-
-        $timerCard->customer = $request->input('customer');
-        $timerCard->save();
-
-        return response()->json(['success' => true]);
+        return redirect()->route('dashboard')->with('success', 'Locker berhasil dihapus.');
     }
 
-    public function updateSession(Request $request, $id)
+    // Memulai timer (ubah status menjadi 'Running', simpan data customer)
+    public function start(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'time' => 'required|string'
-        ]);
-    
-        $timerCard = TimerCard::find($id);
+        $card = TimerCard::findOrFail($id);
         
-        if (!$timerCard) {
-            return response()->json(['success' => false, 'message' => 'Timer card not found.']);
+        // Pastikan input customer tidak kosong
+        if (empty($request->customer)) {
+            return response()->json(['success' => false, 'message' => 'Customer tidak boleh kosong.'], 400);
         }
-    
-        $timerCard->time = $validatedData['time'];
-        $timerCard->save();
-    
-        return response()->json(['success' => true, 'message' => 'Session updated successfully.']);
-    }    
 
-    public function exportPdf(Request $request)
-    {
-        $request->validate([
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date',
+        // Update data card
+        $card->update([
+            'customer' => $request->customer,
+            'time' => $this->convertTimeToSeconds($request->time),
+            'status' => 'Running',
         ]);
 
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
+        return response()->json(['success' => true, 'message' => 'Timer dimulai.']);
+    }
 
-        $query = TimerCard::query();
-        if ($startDate) {
-            $query->whereDate('created_at', '>=', $startDate);
-        }
-        if ($endDate) {
-            $query->whereDate('created_at', '<=', $endDate);
-        }
-        $timerCards = $query->get();
+    // Menambah sesi ke timer card
+    public function addSession(Request $request, $id)
+    {
+        $card = TimerCard::findOrFail($id);
 
-        $pdf = Pdf::loadView('pdf.timer_cardspdf', compact('timerCards'));
+        $additionalMinutes = $request->input('sessionMinutes');
+        $additionalSeconds = $additionalMinutes * 60;
+        $currentSeconds = $this->convertTimeToSeconds($card->time);
 
-        return $pdf->download('rekapdata_marcopolo.pdf');
+        // Tambahkan sesi ke waktu sekarang
+        $newTotalSeconds = $currentSeconds + $additionalSeconds;
+        $card->update(['time' => $this->convertSecondsToTime($newTotalSeconds)]);
+
+        return response()->json(['success' => true, 'message' => 'Sesi ditambahkan.']);
+    }
+
+    // Fungsi helper untuk konversi waktu ke detik
+    private function convertTimeToSeconds($time)
+    {
+        list($hours, $minutes, $seconds) = sscanf($time, '%d:%d:%d');
+        return ($hours * 3600) + ($minutes * 60) + $seconds;
+    }
+
+    // Fungsi helper untuk konversi detik ke format waktu 00:00:00
+    private function convertSecondsToTime($totalSeconds)
+    {
+        $hours = floor($totalSeconds / 3600);
+        $minutes = floor(($totalSeconds % 3600) / 60);
+        $seconds = $totalSeconds % 60;
+        return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds); // Menggunakan sprintf, bukan gmdate
     }
 }

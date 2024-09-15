@@ -75,7 +75,7 @@
             </form>                    
             <form id="editForm" method="POST" action="">
                 @csrf
-                @method('PUT')
+                @method('PATCH')
 
                 <!-- Input Nama Locker -->
                 <div class="mt-2">
@@ -97,7 +97,7 @@
                 <!-- Atur Ulang dan Penambahan Waktu -->
                 <div class="mt-2">
                     <x-input-label for="time" value="Waktu" />
-                    <x-text-input id="time" name="time" placeholder="01:30:00" value="01:30:00" class="mb-2 w-full" disabled />
+                    <x-text-input id="time" name="time" placeholder="01:30:00" value="01:30:00" class="mb-2 w-full" readonly />
                     
                     <x-secondary-button id="resetTime" class="my-2">Atur Ulang</x-secondary-button>
 
@@ -128,9 +128,9 @@
         document.getElementById('card_name').value = cardName;
         document.getElementById('time').value = time || '01:30:00';  // Default ke 90 menit
 
-        // Pilih Staff
+        // Reset opsi staff
         const userSelect = document.getElementById('userSelect');
-        userSelect.selectedIndex = 0;  // Reset ke opsi default
+        userSelect.selectedIndex = 0;
         if (userName) {
             const option = Array.from(userSelect.options).find(option => option.text === userName);
             if (option) {
@@ -138,12 +138,12 @@
             }
         }
 
-        // Fungsi Reset Time
+        // Reset time
         document.getElementById('resetTime').addEventListener('click', function() {
             document.getElementById('time').value = '01:30:00';  // Reset ke 90 menit
         });
 
-        // Fungsi Penambahan Waktu (+45 menit atau +90 menit)
+        // Fungsi tambah sesi
         document.getElementById('addSession1').addEventListener('click', function() {
             addSessionTime(45);  // Tambah 45 menit
         });
@@ -151,7 +151,6 @@
             addSessionTime(90);  // Tambah 90 menit
         });
 
-        // Fungsi Penambahan Waktu (Mengupdate input time)
         function addSessionTime(minutesToAdd) {
             const timeInput = document.getElementById('time').value;
             const [hours, minutes, seconds] = timeInput.split(':').map(Number);
@@ -161,11 +160,21 @@
             const newMinutes = totalMinutes % 60;
 
             document.getElementById('time').value = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            // Sinkronkan waktu baru dengan komponen timer
+            updateTimerCardDisplay(id, document.getElementById('time').value);
         }
 
         window.dispatchEvent(new CustomEvent('open-modal', { detail: 'edit-modal' }));
     }
+
+    // Fungsi untuk memperbarui tampilan waktu pada komponen timer-card
+    function updateTimerCardDisplay(cardId, newTime) {
+        const [hours, minutes, seconds] = newTime.split(':').map(Number);
+
+        document.getElementById('hours_' + cardId).style.setProperty('--value', hours);
+        document.getElementById('minutes_' + cardId).style.setProperty('--value', minutes);
+        document.getElementById('seconds_' + cardId).style.setProperty('--value', seconds);
+    }
 </script>
-
-
 
