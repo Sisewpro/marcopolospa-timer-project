@@ -38,4 +38,4 @@ $classes = ($active ?? false)
     <?php echo e($slot); ?>
 
 </a>
-<?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views/components/responsive-nav-link.blade.php ENDPATH**/ ?>
+<?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views\components\responsive-nav-link.blade.php ENDPATH**/ ?>

@@ -12,8 +12,11 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    <!-- Styles -->
+    <?php echo app('Illuminate\Foundation\Vite')('resources/css/app.css'); ?>
+
     <!-- Scripts -->
-    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
+    <?php echo app('Illuminate\Foundation\Vite')('resources/js/app.js'); ?>
 </head>
 
 <body class="font-sans antialiased">
@@ -32,8 +35,12 @@
 
         <!-- Page Content -->
         <main>
+            <?php if (! empty(trim($__env->yieldContent('content')))): ?>
+            <?php echo $__env->yieldContent('content'); ?>
+            <?php else: ?>
             <?php echo e($slot); ?>
 
+            <?php endif; ?>
         </main>
     </div>
     <div class="bg-base-100">

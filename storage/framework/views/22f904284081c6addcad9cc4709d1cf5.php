@@ -15,36 +15,18 @@
 
             </h2>
             <label class="grid cursor-pointer place-items-center">
-                <input
-                    type="checkbox"
-                    value="dark"
+                <input type="checkbox" value="dark"
                     class="toggle theme-controller bg-base-content col-span-2 col-start-1 row-start-1" />
-                <svg
-                    class="stroke-base-100 fill-base-100 col-start-1 row-start-1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg class="stroke-base-100 fill-base-100 col-start-1 row-start-1" xmlns="http://www.w3.org/2000/svg"
+                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5" />
                     <path
                         d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
                 </svg>
-                <svg
-                    class="stroke-base-100 fill-base-100 col-start-2 row-start-1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg class="stroke-base-100 fill-base-100 col-start-2 row-start-1" xmlns="http://www.w3.org/2000/svg"
+                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
             </label>
@@ -76,9 +58,10 @@
 <?php endif; ?>
             </form>
 
-            <div class="grid xl:grid-cols-8 xl:gap-4 lg:grid-cols-8 lg:gap-4 md:grid-cols-4 md:gap-8 sm:grid-cols-2 sm:gap-10 xs:grid-cols-1 xs:gap-11">
+            <div
+                class="grid xl:grid-cols-8 xl:gap-4 lg:grid-cols-8 lg:gap-4 md:grid-cols-4 md:gap-8 sm:grid-cols-2 sm:gap-10 xs:grid-cols-1 xs:gap-11">
                 <?php $__currentLoopData = $timerCards; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <?php if (isset($component)) { $__componentOriginalf77ddb0ed50bb65e19297bc247048847 = $component; } ?>
+                <?php if (isset($component)) { $__componentOriginalf77ddb0ed50bb65e19297bc247048847 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalf77ddb0ed50bb65e19297bc247048847 = $attributes; } ?>
 <?php $component = App\View\Components\TimerCard::resolve(['id' => $card->id,'cardName' => $card->card_name,'userName' => $card->user ? $card->user->name : 'None','time' => $card->getFormattedTimeAttribute(),'status' => $card->status] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('timer-card'); ?>
@@ -141,7 +124,7 @@
 <?php $component = $__componentOriginal656e8c5ea4d9a4fa173298297bfe3f11; ?>
 <?php unset($__componentOriginal656e8c5ea4d9a4fa173298297bfe3f11); ?>
 <?php endif; ?>
-            </form>                    
+            </form>
             <form id="editForm" method="POST" action="">
                 <?php echo csrf_field(); ?>
                 <?php echo method_field('PATCH'); ?>
@@ -190,18 +173,18 @@
 <?php endif; ?>
                 </div>
 
-                <!-- Pilih Staff -->
+                <!-- Pilih Therapist -->
                 <div class="mt-2">
                     <?php if (isset($component)) { $__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginale3da9d84bb64e4bc2eeebaafabfb2581 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-label','data' => ['for' => 'userSelect','value' => 'Pilih Staff']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-label','data' => ['for' => 'userSelect','value' => 'Pilih Therapist']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('input-label'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['for' => 'userSelect','value' => 'Pilih Staff']); ?>
+<?php $component->withAttributes(['for' => 'userSelect','value' => 'Pilih Therapist']); ?>
 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginale3da9d84bb64e4bc2eeebaafabfb2581)): ?>
@@ -212,13 +195,15 @@
 <?php $component = $__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581; ?>
 <?php unset($__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581); ?>
 <?php endif; ?>
-                    <select name="user_id" id="userSelect" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mb-2 w-full">
-                        <option value="" selected>Pilih Staff</option>
-                        <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($user->id); ?>"><?php echo e($user->name); ?></option>
+                    <select name="user_id" id="userSelect"
+                        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mb-2 w-full">
+                        <option value="" selected>Pilih Therapist</option>
+                        <?php $__currentLoopData = $therapists; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $therapist): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($therapist->id); ?>"><?php echo e($therapist->name); ?></option>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
+
 
                 <!-- Atur Ulang dan Penambahan Waktu -->
                 <div class="mt-2">
@@ -262,7 +247,7 @@
 <?php $component = $__componentOriginal18c21970322f9e5c938bc954620c12bb; ?>
 <?php unset($__componentOriginal18c21970322f9e5c938bc954620c12bb); ?>
 <?php endif; ?>
-                    
+
                     <?php if (isset($component)) { $__componentOriginal3b0e04e43cf890250cc4d85cff4d94af = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal3b0e04e43cf890250cc4d85cff4d94af = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.secondary-button','data' => ['id' => 'resetTime','class' => 'my-2']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
@@ -362,7 +347,7 @@
         document.getElementById('editForm').action = `/timer-cards/${id}`;
         document.getElementById('deleteForm').action = `/timer-cards/${id}`;
         document.getElementById('card_name').value = cardName;
-        document.getElementById('time').value = time || '01:30:00';  // Default ke 90 menit
+        document.getElementById('time').value = time || '01:30:00'; // Default ke 90 menit
 
         // Reset opsi staff
         const userSelect = document.getElementById('userSelect');
@@ -376,15 +361,15 @@
 
         // Reset time
         document.getElementById('resetTime').addEventListener('click', function() {
-            document.getElementById('time').value = '01:30:00';  // Reset ke 90 menit
+            document.getElementById('time').value = '01:30:00'; // Reset ke 90 menit
         });
 
         // Fungsi tambah sesi
         document.getElementById('addSession1').addEventListener('click', function() {
-            addSessionTime(45);  // Tambah 45 menit
+            addSessionTime(45); // Tambah 45 menit
         });
         document.getElementById('addSession2').addEventListener('click', function() {
-            addSessionTime(90);  // Tambah 90 menit
+            addSessionTime(90); // Tambah 90 menit
         });
 
         function addSessionTime(minutesToAdd) {
@@ -395,13 +380,16 @@
             const newHours = Math.floor(totalMinutes / 60);
             const newMinutes = totalMinutes % 60;
 
-            document.getElementById('time').value = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('time').value =
+                `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
             // Sinkronkan waktu baru dengan komponen timer
             updateTimerCardDisplay(id, document.getElementById('time').value);
         }
 
-        window.dispatchEvent(new CustomEvent('open-modal', { detail: 'edit-modal' }));
+        window.dispatchEvent(new CustomEvent('open-modal', {
+            detail: 'edit-modal'
+        }));
     }
 
     // Fungsi untuk memperbarui tampilan waktu pada komponen timer-card
@@ -412,6 +400,4 @@
         document.getElementById('minutes_' + cardId).style.setProperty('--value', minutes);
         document.getElementById('seconds_' + cardId).style.setProperty('--value', seconds);
     }
-</script>
-
-<?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views/dashboard.blade.php ENDPATH**/ ?>
+</script><?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views/dashboard.blade.php ENDPATH**/ ?>

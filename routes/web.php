@@ -3,44 +3,45 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TimerCardController;
 use App\Http\Controllers\MasterController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ActiveTherapistController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
+// Default registration page route
 Route::get('/', function () {
-    return view('auth.register'); // Tampilan halaman pendaftaran default
+    return view('auth.register');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard route (index dari TimerCardController)
+    // Dashboard route
     Route::get('/dashboard', [TimerCardController::class, 'index'])->name('dashboard');
 
-    // Profile routes (untuk user profile management)
+    // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Master route
-    Route::get('/master', [MasterController::class, 'index'])->name('master');
-    Route::get('/export/pdf', [TimerCardController::class, 'exportPdf'])->name('export.pdf');
-
-
     // Timer card routes
-    // Menampilkan semua timer cards di halaman dashboard
     Route::get('/timer-cards', [TimerCardController::class, 'index'])->name('timer-cards.index');
-
-    // Menyimpan timer card baru
     Route::post('/timer-cards', [TimerCardController::class, 'store'])->name('timer-cards.store');
-
-    // Memulai timer card dan menyimpan customer serta waktu
     Route::post('/timer-cards/{id}/start', [TimerCardController::class, 'start'])->name('timer-cards.start');
-
-    // Menambah sesi waktu pada timer card
     Route::post('/timer-cards/{id}/add-session', [TimerCardController::class, 'addSession'])->name('timer-cards.add-session');
-
-    // Mengupdate informasi timer card
     Route::patch('/timer-cards/{id}', [TimerCardController::class, 'update'])->name('timer-cards.update');
-
-    // Menghapus timer card
     Route::delete('/timer-cards/{id}', [TimerCardController::class, 'destroy'])->name('timer-cards.destroy');
+
+    // Master
+    Route::get('/master', [MasterController::class, 'index'])->name('master');
+    // Sub nav export data
+    Route::get('/export-data', [ExportController::class, 'show'])->name('export-data');
+    Route::get('/export/pdf', [TimerCardController::class, 'exportPdf'])->name('export.pdf');
+    // Sub nav Active Therapists (Admin only)
+    Route::get('/active-therapists', [ActiveTherapistController::class, 'index'])->name('active-therapists.index');
+    Route::get('/active-therapists/create', [ActiveTherapistController::class, 'create'])->name('active-therapists.create');
+    Route::post('/active-therapists', [ActiveTherapistController::class, 'store'])->name('active-therapists.store');
+    Route::get('/active-therapists/{therapist}/edit', [ActiveTherapistController::class, 'edit'])->name('active-therapists.edit');
+    Route::put('/active-therapists/{therapist}', [ActiveTherapistController::class, 'update'])->name('active-therapists.update');
+    Route::delete('/active-therapists/{therapist}', [ActiveTherapistController::class, 'destroy'])->name('active-therapists.destroy');
 });
 
 require __DIR__ . '/auth.php';

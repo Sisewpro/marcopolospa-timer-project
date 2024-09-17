@@ -12,8 +12,11 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    <!-- Styles -->
+    @vite('resources/css/app.css')
+
     <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite('resources/js/app.js')
 </head>
 
 <body class="font-sans antialiased">
@@ -31,7 +34,11 @@
 
         <!-- Page Content -->
         <main>
+            @hasSection('content')
+            @yield('content')
+            @else
             {{ $slot }}
+            @endif
         </main>
     </div>
     <div class="bg-base-100">

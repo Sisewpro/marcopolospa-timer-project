@@ -84,9 +84,9 @@
             <tr>
                 <th>No.</th>
                 <th>Card Name</th>
+                <th>Staff</th>
                 <th>Customer</th>
                 <th>Session</th>
-                <th>Status</th>
                 <th>Date</th>
                 <th>Time</th>
             </tr>
@@ -96,9 +96,9 @@
             <tr>
                 <td><?php echo e($loop->iteration); ?></td>
                 <td><?php echo e($timerCard->card_name); ?></td>
+                <td><?php echo e(optional($timerCard->user)->name ?? 'No Staff Assigned'); ?></td>
                 <td><?php echo e($timerCard->customer); ?></td>
                 <td><?php echo e($timerCard->time); ?></td>
-                <td><?php echo e($timerCard->status); ?></td>
                 <td><?php echo e(\Carbon\Carbon::parse($timerCard->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('j F Y')); ?>
 
                 </td>

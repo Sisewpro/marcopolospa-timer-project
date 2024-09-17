@@ -3,18 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\TimerCard;
+use App\Models\Therapist;
 
 class MasterController extends Controller
 {
     public function index(Request $request)
     {
-        // Get start date and end date from request
+        // Get start date and end date from request (if needed)
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        // Fetch timer cards with filtering based on date range
-        $query = TimerCard::query();
+        // Fetch therapists with optional date filtering
+        $query = Therapist::query();
 
         if ($startDate) {
             $query->whereDate('created_at', '>=', $startDate);
@@ -24,11 +24,8 @@ class MasterController extends Controller
             $query->whereDate('created_at', '<=', $endDate);
         }
 
-        $timerCards = $query->get()->map(function ($timerCard) {
-            $timerCard->formatted_date = $timerCard->created_at->format('j F Y');
-            return $timerCard;
-        });
+        $therapists = $query->get();
 
-        return view('master', compact('timerCards'));
+        return view('master', compact('therapists'));
     }
 }
