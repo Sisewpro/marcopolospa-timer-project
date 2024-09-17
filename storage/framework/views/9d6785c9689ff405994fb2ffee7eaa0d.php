@@ -1,7 +1,7 @@
 <?php $attributes ??= new \Illuminate\View\ComponentAttributeBag;
 
 $__newAttributes = [];
-$__propNames = \Illuminate\View\ComponentAttributeBag::extractPropNames((['status']));
+$__propNames = \Illuminate\View\ComponentAttributeBag::extractPropNames((['disabled' => false]));
 
 foreach ($attributes->all() as $__key => $__value) {
     if (in_array($__key, $__propNames)) {
@@ -16,7 +16,7 @@ $attributes = new \Illuminate\View\ComponentAttributeBag($__newAttributes);
 unset($__propNames);
 unset($__newAttributes);
 
-foreach (array_filter((['status']), 'is_string', ARRAY_FILTER_USE_KEY) as $__key => $__value) {
+foreach (array_filter((['disabled' => false]), 'is_string', ARRAY_FILTER_USE_KEY) as $__key => $__value) {
     $$__key = $$__key ?? $__value;
 }
 
@@ -28,10 +28,5 @@ foreach ($attributes->all() as $__key => $__value) {
 
 unset($__defined_vars); ?>
 
-<?php if($status): ?>
-    <div <?php echo e($attributes->merge(['class' => 'font-medium text-sm text-green-600 dark:text-green-400'])); ?>>
-        <?php echo e($status); ?>
-
-    </div>
-<?php endif; ?>
-<?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views/components/auth-session-status.blade.php ENDPATH**/ ?>
+<input <?php echo e($disabled ? 'disabled' : ''); ?> <?php echo $attributes->merge(['class' => 'border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm']); ?>>
+<?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views\components\text-input.blade.php ENDPATH**/ ?>

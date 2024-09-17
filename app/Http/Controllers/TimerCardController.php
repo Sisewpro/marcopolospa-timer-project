@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TimerCard;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Therapist;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,8 +15,8 @@ class TimerCardController extends Controller
     public function index()
     {
         $timerCards = TimerCard::with('user')->get(); // Ambil semua card dengan user
-        $users = User::where('role', '!=', 'admin')->get(); // Ambil user non-admin untuk pilihan staff
-        return view('dashboard', compact('timerCards', 'users'));
+        $therapists = Therapist::where('status', 'active')->get(); // Ambil therapist aktif
+        return view('dashboard', compact('timerCards', 'therapists'));
     }
 
     // Menyimpan locker baru
@@ -25,7 +26,7 @@ class TimerCardController extends Controller
 
         TimerCard::create([
             'card_name' => 'Locker ' . ($count + 1),
-            'user_id' => $request->input('user_id'),
+            'therapist_id' => $request->input('therapist_id'),
             'customer' => null,
             'time' => '01:30:00', // waktu default 90 menit
             'status' => 'Ready',
@@ -39,14 +40,14 @@ class TimerCardController extends Controller
     {
         $request->validate([
             'card_name' => 'required|string|max:255',
-            'user_id' => 'nullable|exists:users,id',
+            'therapist_id' => 'nullable|exists:therapists,id',
             'time' => 'required|string', // Validasi untuk input waktu
         ]);
 
         $card = TimerCard::findOrFail($id);
         $card->update([
             'card_name' => $request->input('card_name'),
-            'user_id' => $request->input('user_id'),
+            'therapist_id' => $request->input('therapist_id'),
             'time' => $request->input('time'), // Simpan waktu yang baru
         ]);
 

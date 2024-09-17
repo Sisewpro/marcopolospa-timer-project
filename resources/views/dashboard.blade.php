@@ -5,36 +5,18 @@
                 {{ __('Wealthness Spa') }}
             </h2>
             <label class="grid cursor-pointer place-items-center">
-                <input
-                    type="checkbox"
-                    value="dark"
+                <input type="checkbox" value="dark"
                     class="toggle theme-controller bg-base-content col-span-2 col-start-1 row-start-1" />
-                <svg
-                    class="stroke-base-100 fill-base-100 col-start-1 row-start-1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg class="stroke-base-100 fill-base-100 col-start-1 row-start-1" xmlns="http://www.w3.org/2000/svg"
+                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5" />
                     <path
                         d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
                 </svg>
-                <svg
-                    class="stroke-base-100 fill-base-100 col-start-2 row-start-1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg class="stroke-base-100 fill-base-100 col-start-2 row-start-1" xmlns="http://www.w3.org/2000/svg"
+                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
             </label>
@@ -48,15 +30,12 @@
                 <x-secondary-button type="submit">Add Locker</x-secondary-button>
             </form>
 
-            <div class="grid xl:grid-cols-8 xl:gap-4 lg:grid-cols-8 lg:gap-4 md:grid-cols-4 md:gap-8 sm:grid-cols-2 sm:gap-10 xs:grid-cols-1 xs:gap-11">
+            <div
+                class="grid xl:grid-cols-8 xl:gap-4 lg:grid-cols-8 lg:gap-4 md:grid-cols-4 md:gap-8 sm:grid-cols-2 sm:gap-10 xs:grid-cols-1 xs:gap-11">
                 @foreach($timerCards as $card)
-                    <x-timer-card 
-                        :id="$card->id" 
-                        :cardName="$card->card_name" 
-                        :userName="$card->user ? $card->user->name : 'None'" 
-                        :time="$card->getFormattedTimeAttribute()" 
-                        :status="$card->status" 
-                        />
+                <x-timer-card :id="$card->id" :cardName="$card->card_name"
+                    :userName="$card->user ? $card->user->name : 'None'" :time="$card->getFormattedTimeAttribute()"
+                    :status="$card->status" />
 
                 @endforeach
             </div>
@@ -72,7 +51,7 @@
                 <x-danger-button class="w-full my-3">
                     {{ __('DELETE LOCKER') }}
                 </x-danger-button>
-            </form>                    
+            </form>
             <form id="editForm" method="POST" action="">
                 @csrf
                 @method('PATCH')
@@ -83,22 +62,25 @@
                     <x-text-input id="card_name" name="card_name" placeholder="Nama Locker" class="mb-2 w-full" />
                 </div>
 
-                <!-- Pilih Staff -->
+                <!-- Pilih Therapist -->
                 <div class="mt-2">
-                    <x-input-label for="userSelect" value="Pilih Staff" />
-                    <select name="user_id" id="userSelect" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mb-2 w-full">
-                        <option value="" selected>Pilih Staff</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    <x-input-label for="userSelect" value="Pilih Therapist" />
+                    <select name="user_id" id="userSelect"
+                        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mb-2 w-full">
+                        <option value="" selected>Pilih Therapist</option>
+                        @foreach($therapists as $therapist)
+                        <option value="{{ $therapist->id }}">{{ $therapist->name }}</option>
                         @endforeach
                     </select>
                 </div>
 
+
                 <!-- Atur Ulang dan Penambahan Waktu -->
                 <div class="mt-2">
                     <x-input-label for="time" value="Waktu" />
-                    <x-text-input id="time" name="time" placeholder="01:30:00" value="01:30:00" class="mb-2 w-full" readonly />
-                    
+                    <x-text-input id="time" name="time" placeholder="01:30:00" value="01:30:00" class="mb-2 w-full"
+                        readonly />
+
                     <x-secondary-button id="resetTime" class="my-2">Atur Ulang</x-secondary-button>
 
                     <!-- Tombol Penambahan Sesi -->
@@ -126,7 +108,7 @@
         document.getElementById('editForm').action = `/timer-cards/${id}`;
         document.getElementById('deleteForm').action = `/timer-cards/${id}`;
         document.getElementById('card_name').value = cardName;
-        document.getElementById('time').value = time || '01:30:00';  // Default ke 90 menit
+        document.getElementById('time').value = time || '01:30:00'; // Default ke 90 menit
 
         // Reset opsi staff
         const userSelect = document.getElementById('userSelect');
@@ -140,15 +122,15 @@
 
         // Reset time
         document.getElementById('resetTime').addEventListener('click', function() {
-            document.getElementById('time').value = '01:30:00';  // Reset ke 90 menit
+            document.getElementById('time').value = '01:30:00'; // Reset ke 90 menit
         });
 
         // Fungsi tambah sesi
         document.getElementById('addSession1').addEventListener('click', function() {
-            addSessionTime(45);  // Tambah 45 menit
+            addSessionTime(45); // Tambah 45 menit
         });
         document.getElementById('addSession2').addEventListener('click', function() {
-            addSessionTime(90);  // Tambah 90 menit
+            addSessionTime(90); // Tambah 90 menit
         });
 
         function addSessionTime(minutesToAdd) {
@@ -159,13 +141,16 @@
             const newHours = Math.floor(totalMinutes / 60);
             const newMinutes = totalMinutes % 60;
 
-            document.getElementById('time').value = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('time').value =
+                `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
             // Sinkronkan waktu baru dengan komponen timer
             updateTimerCardDisplay(id, document.getElementById('time').value);
         }
 
-        window.dispatchEvent(new CustomEvent('open-modal', { detail: 'edit-modal' }));
+        window.dispatchEvent(new CustomEvent('open-modal', {
+            detail: 'edit-modal'
+        }));
     }
 
     // Fungsi untuk memperbarui tampilan waktu pada komponen timer-card
@@ -177,4 +162,3 @@
         document.getElementById('seconds_' + cardId).style.setProperty('--value', seconds);
     }
 </script>
-

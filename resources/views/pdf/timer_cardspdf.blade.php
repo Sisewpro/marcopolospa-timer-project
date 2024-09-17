@@ -84,9 +84,9 @@
             <tr>
                 <th>No.</th>
                 <th>Card Name</th>
+                <th>Staff</th>
                 <th>Customer</th>
                 <th>Session</th>
-                <th>Status</th>
                 <th>Date</th>
                 <th>Time</th>
             </tr>
@@ -96,9 +96,9 @@
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $timerCard->card_name }}</td>
+                <td>{{ optional($timerCard->user)->name ?? 'No Staff Assigned' }}</td>
                 <td>{{ $timerCard->customer }}</td>
                 <td>{{ $timerCard->time }}</td>
-                <td>{{ $timerCard->status }}</td>
                 <td>{{ \Carbon\Carbon::parse($timerCard->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('j F Y') }}
                 </td>
                 <td>{{ \Carbon\Carbon::parse($timerCard->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('H:i:s') }}
