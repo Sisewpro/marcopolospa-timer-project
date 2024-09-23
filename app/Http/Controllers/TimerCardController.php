@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\TimerCard;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Therapist;
+use App\Models\Rekap;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,7 +15,7 @@ class TimerCardController extends Controller
     // Menampilkan semua locker card
     public function index()
     {
-        $timerCards = TimerCard::with('user')->get(); // Ambil semua card dengan user
+        $timerCards = TimerCard::with('user', 'therapist')->get(); // Ambil semua card dengan user
         $therapists = Therapist::where('status', 'active')->get(); // Ambil therapist aktif
         return view('dashboard', compact('timerCards', 'therapists'));
     }
@@ -67,37 +68,55 @@ class TimerCardController extends Controller
     // Memulai timer (ubah status menjadi 'Running', simpan data customer)
     public function start(Request $request, $id)
     {
-        $card = TimerCard::findOrFail($id);
+        // Ambil TimerCard berdasarkan ID
+        $timerCard = TimerCard::findOrFail($id);
 
-        // Pastikan input customer tidak kosong
-        if (empty($request->customer)) {
-            return response()->json(['success' => false, 'message' => 'Customer tidak boleh kosong.'], 400);
-        }
-
-        // Update data card
-        $card->update([
-            'customer' => $request->customer,
-            'time' => $this->convertTimeToSeconds($request->time),
-            'status' => 'Running',
+        // Validasi input customer
+        $request->validate([
+            'customer' => 'required|string|max:255',
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Timer dimulai.']);
+        // Update status card ke 'Running'
+        $timerCard->update([
+            'status' => 'Running',
+            'customer' => $request->customer,
+        ]);
+
+        // Simpan data ke tabel rekap
+        Rekap::create([
+            'timer_card_id' => $timerCard->id,
+            'customer' => $request->customer,
+            'therapist_name' => $timerCard->therapist->name ?? 'No Therapist',
+            'time' => $timerCard->time,
+            'status' => 'Running'
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Data Tersimpan.');
     }
 
     // Menambah sesi ke timer card
     public function addSession(Request $request, $id)
     {
-        $card = TimerCard::findOrFail($id);
+        // Validasi input
+        $request->validate([
+            'additionalMinutes' => 'required|integer',
+        ]);
 
-        $additionalMinutes = $request->input('sessionMinutes');
-        $additionalSeconds = $additionalMinutes * 60;
-        $currentSeconds = $this->convertTimeToSeconds($card->time);
+        // Cari TimerCard berdasarkan ID
+        $timerCard = TimerCard::findOrFail($id);
 
-        // Tambahkan sesi ke waktu sekarang
+        // Konversi waktu dari database ke detik
+        $currentSeconds = $this->convertTimeToSeconds($timerCard->time);
+
+        // Tambahkan waktu tambahan dalam detik
+        $additionalSeconds = $request->additionalMinutes * 60;
         $newTotalSeconds = $currentSeconds + $additionalSeconds;
-        $card->update(['time' => $this->convertSecondsToTime($newTotalSeconds)]);
 
-        return response()->json(['success' => true, 'message' => 'Sesi ditambahkan.']);
+        // Simpan waktu baru dalam format jam:menit:detik
+        $timerCard->time = $this->convertSecondsToTime($newTotalSeconds);
+        $timerCard->save();
+
+        return response()->json(['success' => true, 'newTime' => $timerCard->time]);
     }
 
     // Fungsi helper untuk konversi waktu ke detik
@@ -113,7 +132,7 @@ class TimerCardController extends Controller
         $hours = floor($totalSeconds / 3600);
         $minutes = floor(($totalSeconds % 3600) / 60);
         $seconds = $totalSeconds % 60;
-        return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds); // Menggunakan sprintf, bukan gmdate
+        return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
     }
 
     public function exportPdf(Request $request)
