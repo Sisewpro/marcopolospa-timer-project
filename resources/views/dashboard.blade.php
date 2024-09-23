@@ -33,10 +33,13 @@
             <div
                 class="grid xl:grid-cols-8 xl:gap-4 lg:grid-cols-8 lg:gap-4 md:grid-cols-4 md:gap-8 sm:grid-cols-2 sm:gap-10 xs:grid-cols-1 xs:gap-11">
                 @foreach($timerCards as $card)
-                <x-timer-card :id="$card->id" :cardName="$card->card_name"
-                    :userName="$card->user ? $card->user->name : 'None'" :time="$card->getFormattedTimeAttribute()"
-                    :status="$card->status" />
-
+                <x-timer-card 
+                    :id="$card->id" 
+                    :cardName="$card->card_name"
+                    :therapistName="$card->therapist ? $card->therapist->name : 'None'"
+                    :time="$card->getFormattedTimeAttribute()"
+                    :status="$card->status"
+                />
                 @endforeach
             </div>
         </div>
@@ -64,8 +67,8 @@
 
                 <!-- Pilih Therapist -->
                 <div class="mt-2">
-                    <x-input-label for="userSelect" value="Pilih Therapist" />
-                    <select name="user_id" id="userSelect"
+                    <x-input-label for="therapistSelect" value="Pilih Therapist" />
+                    <select name="therapist_id" id="therapistSelect"
                         class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mb-2 w-full">
                         <option value="" selected>Pilih Therapist</option>
                         @foreach($therapists as $therapist)
@@ -104,17 +107,17 @@
 
 <script>
     // Fungsi untuk membuka modal edit
-    function openEditModal(id, cardName, userName, time) {
+    function openEditModal(id, cardName, therapistName, time) {
         document.getElementById('editForm').action = `/timer-cards/${id}`;
         document.getElementById('deleteForm').action = `/timer-cards/${id}`;
         document.getElementById('card_name').value = cardName;
         document.getElementById('time').value = time || '01:30:00'; // Default ke 90 menit
 
         // Reset opsi staff
-        const userSelect = document.getElementById('userSelect');
-        userSelect.selectedIndex = 0;
-        if (userName) {
-            const option = Array.from(userSelect.options).find(option => option.text === userName);
+        const therapistSelect = document.getElementById('therapistSelect');
+        therapistSelect.selectedIndex = 0;
+        if (therapistName) {
+            const option = Array.from(therapistSelect.options).find(option => option.text === therapistName);
             if (option) {
                 option.selected = true;
             }
