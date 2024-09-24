@@ -1,5 +1,3 @@
-<!-- resources/views/export.blade.php -->
-
 <x-app-layout>
     <x-slot name="header">
         <!-- Optional header content -->
@@ -10,19 +8,36 @@
             <div class="bg-base-100 dark:bg-base-300 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-base-content dark:text-base-content">
 
-                    <!-- Export to PDF Button -->
+                    <!-- Export to PDF and Date Filters -->
                     <div class="mb-6">
+                        <!-- Filter Form for Display and Export -->
                         <form method="GET" action="{{ route('export.pdf') }}">
-                            <button type="submit" class="btn btn-secondary">Export to PDF</button>
+                            <div class="form-control mb-4">
+                                <label for="start_date" class="label">Start Date</label>
+                                <input type="date" name="start_date" id="start_date" class="input input-bordered"
+                                    value="{{ request('start_date') }}">
+                            </div>
+
+                            <div class="form-control mb-4">
+                                <label for="end_date" class="label">End Date</label>
+                                <input type="date" name="end_date" id="end_date" class="input input-bordered"
+                                    value="{{ request('end_date') }}">
+                            </div>
+                        </form>
+
+                        <!-- Export to PDF Button (includes date filters) -->
+                        <form method="GET" action="{{ route('export.pdf') }}">
+                            <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+                            <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+                            <button type="submit" class="btn btn-secondary mt-2">Export to PDF</button>
                         </form>
                     </div>
 
-                    <!-- Timer Cards Table for Export -->
+                    <!-- Rekap Table for Display -->
                     <div class="overflow-x-auto">
                         <table class="table w-full text-base-content dark:text-base-content">
                             <thead>
                                 <tr>
-                                    <th>Card Name</th>
                                     <th>Locker</th>
                                     <th>Therapist</th>
                                     <th>Customer</th>
@@ -32,23 +47,20 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($timerCards as $timerCard)
+                                @foreach($rekaps as $rekap)
                                 <tr>
-                                    <td>{{ $timerCard->id }}</td>
-                                    <td>{{ $timerCard->card_name }}</td>
-                                    <td>{{ optional($timerCard->user)->name ?? 'No Staff Assigned' }}</td>
-                                    <td>{{ $timerCard->customer }}</td>
-                                    <td>{{ $timerCard->time }}</td>
+                                    <td>{{ $rekap->timerCard->card_name ?? 'No Locker' }}</td>
+                                    <td>{{ $rekap->therapist_name }}</td>
+                                    <td>{{ $rekap->customer }}</td>
+                                    <td>{{ $rekap->time }}</td>
                                     <td>
                                         <span
-                                            class="badge {{ $timerCard->status == 'Ready' ? 'bg-success text-success-content' : 'bg-warning text-warning-content' }}">
-                                            {{ $timerCard->status }}
+                                            class="badge {{ $rekap->status == 'Ready' ? 'bg-success text-success-content' : 'bg-warning text-warning-content' }}">
+                                            {{ $rekap->status }}
                                         </span>
                                     </td>
-                                    <td>{{ $timerCard->formatted_date }}</td>
-                                    <td>
-                                        <!-- Add action buttons if needed -->
-                                    </td>
+                                    <!-- Date format dd/mm/yyyy -->
+                                    <td>{{ $rekap->created_at->format('d/m/Y') }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>

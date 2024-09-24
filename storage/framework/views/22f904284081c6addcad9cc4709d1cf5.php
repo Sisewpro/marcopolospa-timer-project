@@ -63,7 +63,7 @@
                 <?php $__currentLoopData = $timerCards; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <?php if (isset($component)) { $__componentOriginalf77ddb0ed50bb65e19297bc247048847 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalf77ddb0ed50bb65e19297bc247048847 = $attributes; } ?>
-<?php $component = App\View\Components\TimerCard::resolve(['id' => $card->id,'cardName' => $card->card_name,'userName' => $card->user ? $card->user->name : 'None','time' => $card->getFormattedTimeAttribute(),'status' => $card->status] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = App\View\Components\TimerCard::resolve(['id' => $card->id,'cardName' => $card->card_name,'therapistName' => $card->therapist ? $card->therapist->name : 'None','time' => $card->getFormattedTimeAttribute(),'status' => $card->status] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('timer-card'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
@@ -81,7 +81,6 @@
 <?php $component = $__componentOriginalf77ddb0ed50bb65e19297bc247048847; ?>
 <?php unset($__componentOriginalf77ddb0ed50bb65e19297bc247048847); ?>
 <?php endif; ?>
-
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
         </div>
@@ -177,14 +176,14 @@
                 <div class="mt-2">
                     <?php if (isset($component)) { $__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginale3da9d84bb64e4bc2eeebaafabfb2581 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-label','data' => ['for' => 'userSelect','value' => 'Pilih Therapist']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-label','data' => ['for' => 'therapistSelect','value' => 'Pilih Therapist']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('input-label'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['for' => 'userSelect','value' => 'Pilih Therapist']); ?>
+<?php $component->withAttributes(['for' => 'therapistSelect','value' => 'Pilih Therapist']); ?>
 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginale3da9d84bb64e4bc2eeebaafabfb2581)): ?>
@@ -195,7 +194,7 @@
 <?php $component = $__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581; ?>
 <?php unset($__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581); ?>
 <?php endif; ?>
-                    <select name="user_id" id="userSelect"
+                    <select name="therapist_id" id="therapistSelect"
                         class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mb-2 w-full">
                         <option value="" selected>Pilih Therapist</option>
                         <?php $__currentLoopData = $therapists; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $therapist): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -343,17 +342,17 @@
 
 <script>
     // Fungsi untuk membuka modal edit
-    function openEditModal(id, cardName, userName, time) {
+    function openEditModal(id, cardName, therapistName, time) {
         document.getElementById('editForm').action = `/timer-cards/${id}`;
         document.getElementById('deleteForm').action = `/timer-cards/${id}`;
         document.getElementById('card_name').value = cardName;
         document.getElementById('time').value = time || '01:30:00'; // Default ke 90 menit
 
         // Reset opsi staff
-        const userSelect = document.getElementById('userSelect');
-        userSelect.selectedIndex = 0;
-        if (userName) {
-            const option = Array.from(userSelect.options).find(option => option.text === userName);
+        const therapistSelect = document.getElementById('therapistSelect');
+        therapistSelect.selectedIndex = 0;
+        if (therapistName) {
+            const option = Array.from(therapistSelect.options).find(option => option.text === therapistName);
             if (option) {
                 option.selected = true;
             }

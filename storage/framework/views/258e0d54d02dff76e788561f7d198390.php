@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Timer Cards</title>
+    <title>Rekap Aktivitas</title>
     <style>
     body {
         font-family: Arial, sans-serif;
@@ -78,7 +78,7 @@
     <!-- Title -->
     <h2 style="text-align: center;">Rekap Aktivitas Keseluruhan</h2>
 
-    <!-- Table with Timer Cards Data -->
+    <!-- Table with Rekap Data -->
     <table>
         <thead>
             <tr>
@@ -92,19 +92,19 @@
             </tr>
         </thead>
         <tbody>
-            <?php $__currentLoopData = $timerCards; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $timerCard): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php $__currentLoopData = $rekaps; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rekap): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <tr>
                 <td><?php echo e($loop->iteration); ?></td>
-                <td><?php echo e($timerCard->card_name); ?></td>
-                <td><?php echo e(optional($timerCard->user)->name ?? 'No Staff Assigned'); ?></td>
-                <td><?php echo e($timerCard->customer); ?></td>
-                <td><?php echo e($timerCard->time); ?></td>
-                <td><?php echo e(\Carbon\Carbon::parse($timerCard->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('j F Y')); ?>
+                <td><?php echo e($rekap->timerCard->card_name); ?></td> <!-- Access the timer card name via relation -->
+                <td><?php echo e($rekap->therapist_name); ?></td> <!-- therapist_name from rekaps table -->
+                <td><?php echo e($rekap->customer); ?></td> <!-- customer from rekaps table -->
+                <td><?php echo e($rekap->time); ?></td> <!-- session time from rekaps table -->
+                <td><?php echo e(\Carbon\Carbon::parse($rekap->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('j F Y')); ?>
 
-                </td>
-                <td><?php echo e(\Carbon\Carbon::parse($timerCard->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('H:i:s')); ?>
+                </td> <!-- formatted date -->
+                <td><?php echo e(\Carbon\Carbon::parse($rekap->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('H:i:s')); ?>
 
-                    WIB</td>
+                    WIB</td> <!-- formatted time -->
             </tr>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </tbody>

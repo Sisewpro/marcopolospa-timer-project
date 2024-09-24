@@ -145,16 +145,18 @@ class TimerCardController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $query = TimerCard::query();
+        $query = Rekap::query();
+
         if ($startDate) {
             $query->whereDate('created_at', '>=', $startDate);
         }
         if ($endDate) {
             $query->whereDate('created_at', '<=', $endDate);
         }
-        $timerCards = $query->get();
 
-        $pdf = Pdf::loadView('pdf.timer_cardspdf', compact('timerCards'));
+        $rekaps = $query->with('timerCard')->get();
+
+        $pdf = Pdf::loadView('pdf.rekaps', compact('rekaps'));
 
         return $pdf->download('rekapdata_marcopolo.pdf');
     }
