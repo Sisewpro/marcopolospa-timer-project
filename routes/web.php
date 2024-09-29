@@ -29,6 +29,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/timer-cards/{id}/add-session', [TimerCardController::class, 'addSession'])->name('timer-cards.addSession');
     Route::patch('/timer-cards/{id}', [TimerCardController::class, 'update'])->name('timer-cards.update');
     Route::delete('/timer-cards/{id}', [TimerCardController::class, 'destroy'])->name('timer-cards.destroy');
+    
+
 
     // Master
     Route::get('/master', [MasterController::class, 'index'])->name('master');

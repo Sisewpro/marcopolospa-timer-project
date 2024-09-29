@@ -33,13 +33,9 @@
             <div
                 class="grid xl:grid-cols-8 xl:gap-4 lg:grid-cols-8 lg:gap-4 md:grid-cols-4 md:gap-8 sm:grid-cols-2 sm:gap-10 xs:grid-cols-1 xs:gap-11">
                 @foreach($timerCards as $card)
-                <x-timer-card 
-                    :id="$card->id" 
-                    :cardName="$card->card_name"
+                <x-timer-card :id="$card->id" :cardName="$card->card_name"
                     :therapistName="$card->therapist ? $card->therapist->name : 'None'"
-                    :time="$card->getFormattedTimeAttribute()"
-                    :status="$card->status"
-                />
+                    :time="$card->getFormattedTimeAttribute()" :status="$card->status" />
                 @endforeach
             </div>
         </div>
@@ -106,62 +102,154 @@
 </x-app-layout>
 
 <script>
-    // Fungsi untuk membuka modal edit
-    function openEditModal(id, cardName, therapistName, time) {
-        document.getElementById('editForm').action = `/timer-cards/${id}`;
-        document.getElementById('deleteForm').action = `/timer-cards/${id}`;
-        document.getElementById('card_name').value = cardName;
-        document.getElementById('time').value = time || '01:30:00'; // Default ke 90 menit
+// Fungsi untuk membuka modal edit
+function openEditModal(id, cardName, therapistName, time) {
+    // Set action untuk form edit dan delete sesuai ID yang dipilih
+    document.getElementById('editForm').action = `/timer-cards/${id}`;
+    document.getElementById('deleteForm').action = `/timer-cards/${id}`;
+    document.getElementById('card_name').value = cardName;
+    document.getElementById('time').value = time || '01:30:00'; // Default ke 90 menit
 
-        // Reset opsi staff
-        const therapistSelect = document.getElementById('therapistSelect');
-        therapistSelect.selectedIndex = 0;
-        if (therapistName) {
-            const option = Array.from(therapistSelect.options).find(option => option.text === therapistName);
-            if (option) {
-                option.selected = true;
+    // Reset opsi therapist
+    const therapistSelect = document.getElementById('therapistSelect');
+    therapistSelect.selectedIndex = 0;
+    if (therapistName) {
+        const option = Array.from(therapistSelect.options).find(option => option.text === therapistName);
+        if (option) {
+            option.selected = true;
+        }
+    }
+
+    // Reset waktu ke default saat tombol 'Atur Ulang' diklik
+    document.getElementById('resetTime').addEventListener('click', function() {
+        document.getElementById('time').value = '01:30:00'; // Reset ke 90 menit
+    });
+
+    // Fungsi tambah sesi
+    document.getElementById('addSession1').addEventListener('click', function() {
+        addSessionTime(45); // Tambah 45 menit
+    });
+    document.getElementById('addSession2').addEventListener('click', function() {
+        addSessionTime(90); // Tambah 90 menit
+    });
+
+    function addSessionTime(minutesToAdd) {
+        const timeInput = document.getElementById('time').value;
+        const [hours, minutes, seconds] = timeInput.split(':').map(Number);
+
+        let totalMinutes = hours * 60 + minutes + minutesToAdd;
+        const newHours = Math.floor(totalMinutes / 60);
+        const newMinutes = totalMinutes % 60;
+
+        document.getElementById('time').value =
+            `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        // Sinkronkan waktu baru dengan komponen timer
+        updateTimerCardDisplay(id, document.getElementById('time').value);
+    }
+
+    window.dispatchEvent(new CustomEvent('open-modal', {
+        detail: 'edit-modal'
+    }));
+}
+
+// Fungsi untuk memperbarui tampilan waktu pada komponen timer-card
+function updateTimerCardDisplay(cardId, newTime) {
+    const [hours, minutes, seconds] = newTime.split(':').map(Number);
+
+    document.getElementById('hours_' + cardId).style.setProperty('--value', hours);
+    document.getElementById('minutes_' + cardId).style.setProperty('--value', minutes);
+    document.getElementById('seconds_' + cardId).style.setProperty('--value', seconds);
+}
+
+// Fungsi untuk menyimpan status timer ke localStorage
+function saveTimerState(id, endTime) {
+    const timerState = {
+        id: id,
+        endTime: endTime.toISOString() // Konversi Date ke ISO String agar bisa disimpan di localStorage
+    };
+    localStorage.setItem('timerState_' + id, JSON.stringify(timerState));
+}
+
+// Fungsi untuk mengambil status timer dari localStorage
+function getTimerState(id) {
+    const savedState = localStorage.getItem('timerState_' + id);
+    return savedState ? JSON.parse(savedState) : null;
+}
+
+// Fungsi untuk menghapus status timer dari localStorage setelah selesai
+function removeTimerState(id) {
+    localStorage.removeItem('timerState_' + id);
+}
+
+// Fungsi untuk memulai timer dan update real-time
+function startTimer(id) {
+    const now = new Date();
+    const endTime = new Date(now.getTime() + 45 * 60000); // Tambah 45 menit (2700000 ms)
+
+    // Simpan status timer ke localStorage
+    saveTimerState(id, endTime);
+
+    // Panggil fungsi untuk memperbarui UI dan localStorage setiap detik
+    const timerInterval = setInterval(() => {
+        const currentTime = new Date();
+        const timeLeft = Math.max((endTime - currentTime) / 1000, 0); // Hitung sisa waktu dalam detik
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval); // Timer selesai
+            removeTimerState(id); // Hapus status dari localStorage
+            alert('Timer selesai!');
+            return;
+        }
+
+        // Update tampilan timer dan localStorage
+        updateTimerUI(id, timeLeft);
+    }, 1000);
+
+    // Simpan interval ID untuk referensi nanti jika ingin dihentikan
+    window.timerIntervals = window.timerIntervals || {};
+    window.timerIntervals[id] = timerInterval;
+}
+
+// Fungsi untuk menghentikan timer dan menghapus interval
+function stopTimer(id) {
+    clearInterval(window.timerIntervals[id]);
+    removeTimerState(id);
+}
+
+// Fungsi untuk memperbarui tampilan timer UI
+function updateTimerUI(id, timeLeft) {
+    const hours = Math.floor(timeLeft / 3600);
+    const minutes = Math.floor((timeLeft % 3600) / 60);
+    const seconds = Math.floor(timeLeft % 60);
+
+    document.getElementById('hours_' + id).style.setProperty('--value', hours);
+    document.getElementById('minutes_' + id).style.setProperty('--value', minutes);
+    document.getElementById('seconds_' + id).style.setProperty('--value', seconds);
+}
+
+// Ketika halaman dimuat, periksa apakah ada timer yang perlu dipulihkan
+window.addEventListener('load', () => {
+    // Ambil semua card timer yang ada (misalnya ID 1, 2, dst.)
+    const timerCards = document.querySelectorAll('[id^="timer-card-"]');
+    timerCards.forEach(card => {
+        const timerId = card.dataset.id;
+        const savedState = getTimerState(timerId);
+
+        if (savedState) {
+            const endTime = new Date(savedState.endTime);
+            const currentTime = new Date();
+            const timeLeft = Math.max((endTime - currentTime) / 1000, 0);
+
+            if (timeLeft > 0) {
+                // Jika masih ada sisa waktu, atur timer UI dan mulai timer kembali
+                updateTimerUI(timerId, timeLeft);
+                startTimer(timerId); // Mulai timer kembali
+            } else {
+                // Jika tidak ada sisa waktu, hapus status timer dari localStorage
+                removeTimerState(timerId);
             }
         }
-
-        // Reset time
-        document.getElementById('resetTime').addEventListener('click', function() {
-            document.getElementById('time').value = '01:30:00'; // Reset ke 90 menit
-        });
-
-        // Fungsi tambah sesi
-        document.getElementById('addSession1').addEventListener('click', function() {
-            addSessionTime(45); // Tambah 45 menit
-        });
-        document.getElementById('addSession2').addEventListener('click', function() {
-            addSessionTime(90); // Tambah 90 menit
-        });
-
-        function addSessionTime(minutesToAdd) {
-            const timeInput = document.getElementById('time').value;
-            const [hours, minutes, seconds] = timeInput.split(':').map(Number);
-
-            let totalMinutes = hours * 60 + minutes + minutesToAdd;
-            const newHours = Math.floor(totalMinutes / 60);
-            const newMinutes = totalMinutes % 60;
-
-            document.getElementById('time').value =
-                `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-            // Sinkronkan waktu baru dengan komponen timer
-            updateTimerCardDisplay(id, document.getElementById('time').value);
-        }
-
-        window.dispatchEvent(new CustomEvent('open-modal', {
-            detail: 'edit-modal'
-        }));
-    }
-
-    // Fungsi untuk memperbarui tampilan waktu pada komponen timer-card
-    function updateTimerCardDisplay(cardId, newTime) {
-        const [hours, minutes, seconds] = newTime.split(':').map(Number);
-
-        document.getElementById('hours_' + cardId).style.setProperty('--value', hours);
-        document.getElementById('minutes_' + cardId).style.setProperty('--value', minutes);
-        document.getElementById('seconds_' + cardId).style.setProperty('--value', seconds);
-    }
+    });
+});
 </script>
