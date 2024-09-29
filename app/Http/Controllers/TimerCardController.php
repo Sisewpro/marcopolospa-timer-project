@@ -94,6 +94,20 @@ class TimerCardController extends Controller
         return redirect()->route('dashboard')->with('success', 'Data Tersimpan.');
     }
 
+
+    public function stop(Request $request, $id)
+    {
+        $timerCard = TimerCard::findOrFail($id);
+        $timerCard->status = 'Ready';
+        $timerCard->remaining_time = 0; // Reset ke 0 atau simpan sesuai kebutuhan
+        $timerCard->save();
+
+        return response()->json([
+            'message' => 'Timer stopped successfully',
+            'timerCard' => $timerCard,
+        ]);
+    }
+
     // Menambah sesi ke timer card
     public function addSession(Request $request, $id)
     {
@@ -117,6 +131,16 @@ class TimerCardController extends Controller
         $timerCard->save();
 
         return response()->json(['success' => true, 'newTime' => $timerCard->time]);
+    }
+
+    public function getStatus($id)
+    {
+        $timerCard = TimerCard::findOrFail($id);
+        return response()->json([
+            'cardId' => $timerCard->id,
+            'initialTime' => gmdate('H:i:s', $timerCard->time),
+            'isRunning' => $timerCard->status === 'Running'
+        ]);
     }
 
     // Fungsi helper untuk konversi waktu ke detik

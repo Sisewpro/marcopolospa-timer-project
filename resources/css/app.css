@@ -24,3 +24,8 @@
     background-color: #e5e7eb; /* Light gray background on hover */
     color: #111827; /* Darker text on hover */
 }
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
