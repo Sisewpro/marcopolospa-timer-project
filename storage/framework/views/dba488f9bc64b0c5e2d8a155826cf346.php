@@ -64,7 +64,7 @@
                                     <td><?php echo e($rekap->time); ?></td>
                                     <td>
                                         <span
-                                            class="badge <?php echo e($rekap->status == 'Ready' ? 'bg-success text-success-content' : 'bg-warning text-warning-content'); ?>">
+                                            class="badge <?php echo e($rekap->status == 'Ready' ? 'bg-success text-success-content' : 'bg-success text-warning-content'); ?>">
                                             <?php echo e($rekap->status); ?>
 
                                         </span>
