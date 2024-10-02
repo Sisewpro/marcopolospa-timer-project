@@ -88,7 +88,7 @@ class TimerCardController extends Controller
             'customer' => $request->customer,
             'therapist_name' => $timerCard->therapist->name ?? 'No Therapist',
             'time' => $timerCard->time,
-            'status' => 'Running'
+            'status' => 'Done'
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Data Tersimpan.');

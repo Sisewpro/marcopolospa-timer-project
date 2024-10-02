@@ -27,7 +27,7 @@
         <div class="mx-auto sm:px-8 lg:px-10">
             <form action="{{ route('timer-cards.store') }}" method="POST" class="mb-4">
                 @csrf
-                <x-secondary-button type="submit">Add Locker</x-secondary-button>
+                <x-secondary-button type="submit">+ Add Locker</x-secondary-button>
             </form>
 
             <div

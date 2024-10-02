@@ -55,7 +55,7 @@
                                     <td>{{ $rekap->time }}</td>
                                     <td>
                                         <span
-                                            class="badge {{ $rekap->status == 'Ready' ? 'bg-success text-success-content' : 'bg-warning text-warning-content' }}">
+                                            class="badge {{ $rekap->status == 'Ready' ? 'bg-success text-success-content' : 'bg-success text-warning-content' }}">
                                             {{ $rekap->status }}
                                         </span>
                                     </td>
