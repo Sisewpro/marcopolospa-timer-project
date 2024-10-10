@@ -10,7 +10,7 @@ class TimerCard extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['card_name', 'user_id', 'customer', 'time', 'status', 'therapist_id'];
+    protected $fillable = ['card_name', 'therapist_id', 'customer', 'time', 'status', 'start_time', 'end_time'];
 
     public function therapist()
     {

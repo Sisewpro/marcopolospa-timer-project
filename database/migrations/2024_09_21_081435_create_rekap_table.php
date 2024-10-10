@@ -19,7 +19,7 @@ class CreateRekapTable extends Migration
             $table->string('customer');          // Nama customer
             $table->string('therapist_name');    // Nama therapist
             $table->char('time', 8)->default('01:30:00');  // Waktu dalam format 00:00:00
-            $table->enum('status', ['Ready', 'Running', 'Done']);  // Status timer
+            $table->enum('status', ['Ready', 'Running']);  // Status timer
             $table->timestamps();                // Created at & updated at
         });
     }
