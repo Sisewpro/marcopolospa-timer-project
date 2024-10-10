@@ -4,22 +4,6 @@
             <h2 class="font-semibold text-xl text-base-content dark:text-gray-200 leading-tight">
                 {{ __('Wealthness Spa') }}
             </h2>
-            <label class="grid cursor-pointer place-items-center">
-                <input type="checkbox" value="dark"
-                    class="toggle theme-controller bg-base-content col-span-2 col-start-1 row-start-1" />
-                <svg class="stroke-base-100 fill-base-100 col-start-1 row-start-1" xmlns="http://www.w3.org/2000/svg"
-                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="5" />
-                    <path
-                        d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
-                </svg>
-                <svg class="stroke-base-100 fill-base-100 col-start-2 row-start-1" xmlns="http://www.w3.org/2000/svg"
-                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-            </label>
         </div>
     </x-slot>
 
@@ -27,15 +11,23 @@
         <div class="mx-auto sm:px-8 lg:px-10">
             <form action="{{ route('timer-cards.store') }}" method="POST" class="mb-4">
                 @csrf
-                <x-secondary-button type="submit">+ Add Locker</x-secondary-button>
+                <!-- <x-secondary-button type="submit">+ Add Locker</x-secondary-button> -->
+                <button class="link no-underline hover:text-primary font-semibold text-xs  uppercase tracking-widest shadow-sm disabled:opacity-25 transition ease-in-out duration-150" type="submit">+ Add Locker</button>
             </form>
 
             <div
                 class="grid xl:grid-cols-8 xl:gap-4 lg:grid-cols-8 lg:gap-4 md:grid-cols-4 md:gap-8 sm:grid-cols-2 sm:gap-10 xs:grid-cols-1 xs:gap-11">
                 @foreach($timerCards as $card)
-                <x-timer-card :id="$card->id" :cardName="$card->card_name"
+                <x-timer-card 
+                    :id="$card->id" 
+                    :cardName="$card->card_name"
                     :therapistName="$card->therapist ? $card->therapist->name : 'None'"
-                    :time="$card->getFormattedTimeAttribute()" :status="$card->status" />
+                    :time="$card->time"
+                    :status="$card->status"
+                    :customer="$card->customer"
+                    :startTime="$card->start_time"
+                    :endTime="$card->end_time"
+                />
                 @endforeach
             </div>
         </div>
@@ -58,15 +50,14 @@
                 <!-- Input Nama Locker -->
                 <div class="mt-2">
                     <x-input-label for="card_name" value="Nama Locker" />
-                    <x-text-input id="card_name" name="card_name" placeholder="Nama Locker" class="mb-2 w-full" />
+                    <x-text-input id="card_name" name="card_name" placeholder="Nama Locker" class="input input-primary mb-2 w-full" />
                 </div>
 
                 <!-- Pilih Therapist -->
                 <div class="mt-2">
                     <x-input-label for="therapistSelect" value="Pilih Therapist" />
-                    <select name="therapist_id" id="therapistSelect"
-                        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mb-2 w-full">
-                        <option value="" selected>Pilih Therapist</option>
+                    <select name="therapist_id" id="therapistSelect" class="select select-primary border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mb-2 w-full">
+                        <option value="" selected>None</option>
                         @foreach($therapists as $therapist)
                         <option value="{{ $therapist->id }}">{{ $therapist->name }}</option>
                         @endforeach
@@ -77,179 +68,62 @@
                 <!-- Atur Ulang dan Penambahan Waktu -->
                 <div class="mt-2">
                     <x-input-label for="time" value="Waktu" />
-                    <x-text-input id="time" name="time" placeholder="01:30:00" value="01:30:00" class="mb-2 w-full"
-                        readonly />
-
-                    <x-secondary-button id="resetTime" class="my-2">Atur Ulang</x-secondary-button>
-
-                    <!-- Tombol Penambahan Sesi -->
-                    <div class="dropdown mb-2">
-                        <button type="button" class="btn btn-sm btn-ghost w-full">Tambah Sesi</button>
-                        <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                            <li><a href="#" id="addSession1">+1 Sesi (45 menit)</a></li>
-                            <li><a href="#" id="addSession2">+2 Sesi (90 menit)</a></li>
-                        </ul>
-                    </div>
+                    <x-text-input id="time" name="time" placeholder="01:30:00" value="01:30:00" class="mb-2 w-full" readonly />
+                    <x-secondary-button id="resetTime" class="capitalize">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z"/>
+                            <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466"/>
+                        </svg>
+                        Reset Timer
+                    </x-secondary-button>
                 </div>
 
-                <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <x-primary-button class="ms-3">Save</x-primary-button>
+                <div class="mt-6 flex justify-end">
                     <x-secondary-button x-on:click="$dispatch('close')">Cancel</x-secondary-button>
+                    <x-primary-button class="ms-3">Save</x-primary-button>
                 </div>
             </form>
         </div>
     </x-modal>
+    <div class="flex w-full flex-col">
+        <div class="bg-base-200 grid h-10 place-items-center mt-2"></div>
+    </div>
 </x-app-layout>
 
 <script>
-// Fungsi untuk membuka modal edit
-function openEditModal(id, cardName, therapistName, time) {
-    // Set action untuk form edit dan delete sesuai ID yang dipilih
-    document.getElementById('editForm').action = `/timer-cards/${id}`;
-    document.getElementById('deleteForm').action = `/timer-cards/${id}`;
-    document.getElementById('card_name').value = cardName;
-    document.getElementById('time').value = time || '01:30:00'; // Default ke 90 menit
+    // Fungsi untuk membuka modal edit
+    function openEditModal(id, cardName, therapistName, time) {
+        document.getElementById('editForm').action = `/timer-cards/${id}`;
+        document.getElementById('deleteForm').action = `/timer-cards/${id}`;
+        document.getElementById('card_name').value = cardName;
+        document.getElementById('time').value = time || '01:30:00'; // Default ke 90 menit
 
-    // Reset opsi therapist
-    const therapistSelect = document.getElementById('therapistSelect');
-    therapistSelect.selectedIndex = 0;
-    if (therapistName) {
-        const option = Array.from(therapistSelect.options).find(option => option.text === therapistName);
-        if (option) {
-            option.selected = true;
-        }
-    }
-
-    // Reset waktu ke default saat tombol 'Atur Ulang' diklik
-    document.getElementById('resetTime').addEventListener('click', function() {
-        document.getElementById('time').value = '01:30:00'; // Reset ke 90 menit
-    });
-
-    // Fungsi tambah sesi
-    document.getElementById('addSession1').addEventListener('click', function() {
-        addSessionTime(45); // Tambah 45 menit
-    });
-    document.getElementById('addSession2').addEventListener('click', function() {
-        addSessionTime(90); // Tambah 90 menit
-    });
-
-    function addSessionTime(minutesToAdd) {
-        const timeInput = document.getElementById('time').value;
-        const [hours, minutes, seconds] = timeInput.split(':').map(Number);
-
-        let totalMinutes = hours * 60 + minutes + minutesToAdd;
-        const newHours = Math.floor(totalMinutes / 60);
-        const newMinutes = totalMinutes % 60;
-
-        document.getElementById('time').value =
-            `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-        // Sinkronkan waktu baru dengan komponen timer
-        updateTimerCardDisplay(id, document.getElementById('time').value);
-    }
-
-    window.dispatchEvent(new CustomEvent('open-modal', {
-        detail: 'edit-modal'
-    }));
-}
-
-// Fungsi untuk memperbarui tampilan waktu pada komponen timer-card
-function updateTimerCardDisplay(cardId, newTime) {
-    const [hours, minutes, seconds] = newTime.split(':').map(Number);
-
-    document.getElementById('hours_' + cardId).style.setProperty('--value', hours);
-    document.getElementById('minutes_' + cardId).style.setProperty('--value', minutes);
-    document.getElementById('seconds_' + cardId).style.setProperty('--value', seconds);
-}
-
-// Fungsi untuk menyimpan status timer ke localStorage
-function saveTimerState(id, endTime) {
-    const timerState = {
-        id: id,
-        endTime: endTime.toISOString() // Konversi Date ke ISO String agar bisa disimpan di localStorage
-    };
-    localStorage.setItem('timerState_' + id, JSON.stringify(timerState));
-}
-
-// Fungsi untuk mengambil status timer dari localStorage
-function getTimerState(id) {
-    const savedState = localStorage.getItem('timerState_' + id);
-    return savedState ? JSON.parse(savedState) : null;
-}
-
-// Fungsi untuk menghapus status timer dari localStorage setelah selesai
-function removeTimerState(id) {
-    localStorage.removeItem('timerState_' + id);
-}
-
-// Fungsi untuk memulai timer dan update real-time
-function startTimer(id) {
-    const now = new Date();
-    const endTime = new Date(now.getTime() + 45 * 60000); // Tambah 45 menit (2700000 ms)
-
-    // Simpan status timer ke localStorage
-    saveTimerState(id, endTime);
-
-    // Panggil fungsi untuk memperbarui UI dan localStorage setiap detik
-    const timerInterval = setInterval(() => {
-        const currentTime = new Date();
-        const timeLeft = Math.max((endTime - currentTime) / 1000, 0); // Hitung sisa waktu dalam detik
-
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval); // Timer selesai
-            removeTimerState(id); // Hapus status dari localStorage
-            alert('Timer selesai!');
-            return;
-        }
-
-        // Update tampilan timer dan localStorage
-        updateTimerUI(id, timeLeft);
-    }, 1000);
-
-    // Simpan interval ID untuk referensi nanti jika ingin dihentikan
-    window.timerIntervals = window.timerIntervals || {};
-    window.timerIntervals[id] = timerInterval;
-}
-
-// Fungsi untuk menghentikan timer dan menghapus interval
-function stopTimer(id) {
-    clearInterval(window.timerIntervals[id]);
-    removeTimerState(id);
-}
-
-// Fungsi untuk memperbarui tampilan timer UI
-function updateTimerUI(id, timeLeft) {
-    const hours = Math.floor(timeLeft / 3600);
-    const minutes = Math.floor((timeLeft % 3600) / 60);
-    const seconds = Math.floor(timeLeft % 60);
-
-    document.getElementById('hours_' + id).style.setProperty('--value', hours);
-    document.getElementById('minutes_' + id).style.setProperty('--value', minutes);
-    document.getElementById('seconds_' + id).style.setProperty('--value', seconds);
-}
-
-// Ketika halaman dimuat, periksa apakah ada timer yang perlu dipulihkan
-window.addEventListener('load', () => {
-    // Ambil semua card timer yang ada (misalnya ID 1, 2, dst.)
-    const timerCards = document.querySelectorAll('[id^="timer-card-"]');
-    timerCards.forEach(card => {
-        const timerId = card.dataset.id;
-        const savedState = getTimerState(timerId);
-
-        if (savedState) {
-            const endTime = new Date(savedState.endTime);
-            const currentTime = new Date();
-            const timeLeft = Math.max((endTime - currentTime) / 1000, 0);
-
-            if (timeLeft > 0) {
-                // Jika masih ada sisa waktu, atur timer UI dan mulai timer kembali
-                updateTimerUI(timerId, timeLeft);
-                startTimer(timerId); // Mulai timer kembali
-            } else {
-                // Jika tidak ada sisa waktu, hapus status timer dari localStorage
-                removeTimerState(timerId);
+        // Reset opsi staff
+        const therapistSelect = document.getElementById('therapistSelect');
+        therapistSelect.selectedIndex = 0;
+        if (therapistName) {
+            const option = Array.from(therapistSelect.options).find(option => option.text === therapistName);
+            if (option) {
+                option.selected = true;
             }
         }
-    });
-});
+
+        // Reset time
+        document.getElementById('resetTime').addEventListener('click', function() {
+            document.getElementById('time').value = '01:30:00'; // Reset ke 90 menit
+        });
+
+        window.dispatchEvent(new CustomEvent('open-modal', {
+            detail: 'edit-modal'
+        }));
+    }
+
+    // Fungsi untuk memperbarui tampilan waktu pada komponen timer-card
+    function updateTimerCardDisplay(cardId, newTime) {
+        const [hours, minutes, seconds] = newTime.split(':').map(Number);
+
+        document.getElementById('hours_' + cardId).style.setProperty('--value', hours);
+        document.getElementById('minutes_' + cardId).style.setProperty('--value', minutes);
+        document.getElementById('seconds_' + cardId).style.setProperty('--value', seconds);
+    }
 </script>

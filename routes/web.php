@@ -26,11 +26,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/timer-cards', [TimerCardController::class, 'index'])->name('timer-cards.index');
     Route::post('/timer-cards', [TimerCardController::class, 'store'])->name('timer-cards.store');
     Route::post('/timer-cards/{id}/start', [TimerCardController::class, 'start'])->name('timer-cards.start');
+    Route::post('/timer-cards/{id}/stop', [TimerCardController::class, 'stop'])->name('timer-cards.stop');
     Route::post('/timer-cards/{id}/add-session', [TimerCardController::class, 'addSession'])->name('timer-cards.addSession');
     Route::patch('/timer-cards/{id}', [TimerCardController::class, 'update'])->name('timer-cards.update');
     Route::delete('/timer-cards/{id}', [TimerCardController::class, 'destroy'])->name('timer-cards.destroy');
-    
-
+    Route::get('/get-timer-status/{id}', [TimerCardController::class, 'getTimerStatus']);
 
     // Master
     Route::get('/master', [MasterController::class, 'index'])->name('master');

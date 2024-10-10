@@ -29,7 +29,7 @@
         <input
           type="text"
           placeholder="username@site.com"
-          class="input input-bordered join-item" />
+          class="input input-bordered input-primary join-item" />
         <button class="btn btn-primary join-item">Subscribe</button>
       </div>
     </fieldset>
@@ -37,7 +37,7 @@
 </footer>
 <footer class="footer bg-base-100 text-base-content border-base-300 border-t py-4">
   <aside class="grid-flow-col items-center">
-    <x-application-logo></x-application-logo>
+    <x-application-logo>&copy; 2024</x-application-logo>
   </aside>
   <nav class="md:place-self-center md:justify-self-end">
     <div class="grid grid-flow-col gap-4">

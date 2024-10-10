@@ -76,10 +76,11 @@ class TimerCardController extends Controller
             'customer' => 'required|string|max:255',
         ]);
 
-        // Update status card ke 'Running'
+        // Set waktu mulai sekarang dan status "Running"
         $timerCard->update([
             'status' => 'Running',
             'customer' => $request->customer,
+            'start_time' => now(), // Simpan waktu mulai
         ]);
 
         // Simpan data ke tabel rekap
@@ -88,24 +89,25 @@ class TimerCardController extends Controller
             'customer' => $request->customer,
             'therapist_name' => $timerCard->therapist->name ?? 'No Therapist',
             'time' => $timerCard->time,
-            'status' => 'Done'
+            'status' => 'Running'
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Data Tersimpan.');
+        return redirect()->route('dashboard')->with('success', 'Timer dimulai.');
     }
 
-
-    public function stop(Request $request, $id)
+    public function stop($id)
     {
+        // Ambil TimerCard berdasarkan ID
         $timerCard = TimerCard::findOrFail($id);
-        $timerCard->status = 'Ready';
-        $timerCard->remaining_time = 0; // Reset ke 0 atau simpan sesuai kebutuhan
-        $timerCard->save();
 
-        return response()->json([
-            'message' => 'Timer stopped successfully',
-            'timerCard' => $timerCard,
+        // Simpan waktu akhir dan ubah status ke "Ready"
+        $timerCard->update([
+            'status' => 'Ready', // Status dikembalikan ke Ready
+            'time' => '01:30:00', // Reset waktu ke default 01:30:00
+            'end_time' => now(), // Simpan waktu selesai
         ]);
+
+        return redirect()->route('dashboard')->with('success', 'Timer dihentikan dan waktu dikembalikan ke default.');
     }
 
     // Menambah sesi ke timer card
@@ -131,16 +133,6 @@ class TimerCardController extends Controller
         $timerCard->save();
 
         return response()->json(['success' => true, 'newTime' => $timerCard->time]);
-    }
-
-    public function getStatus($id)
-    {
-        $timerCard = TimerCard::findOrFail($id);
-        return response()->json([
-            'cardId' => $timerCard->id,
-            'initialTime' => gmdate('H:i:s', $timerCard->time),
-            'isRunning' => $timerCard->status === 'Running'
-        ]);
     }
 
     // Fungsi helper untuk konversi waktu ke detik
@@ -169,18 +161,16 @@ class TimerCardController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $query = Rekap::query();
-
+        $query = TimerCard::query();
         if ($startDate) {
             $query->whereDate('created_at', '>=', $startDate);
         }
         if ($endDate) {
             $query->whereDate('created_at', '<=', $endDate);
         }
+        $timerCards = $query->get();
 
-        $rekaps = $query->with('timerCard')->get();
-
-        $pdf = Pdf::loadView('pdf.rekaps', compact('rekaps'));
+        $pdf = Pdf::loadView('pdf.timer_cardspdf', compact('timerCards'));
 
         return $pdf->download('rekapdata_marcopolo.pdf');
     }
