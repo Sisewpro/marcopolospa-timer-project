@@ -20,18 +20,22 @@
     <div class="text-center mt-2">
         <label id="statusDisplay_{{ $id }}" class="block text-xl font-bold text-primary">{{ $status }}</label>
         <div class="text-3xl font-mono countdown mt-3">
-            <span id="hours_{{ $id }}" style="--value:floor({{ $time }} / 3600);"></span> :
-            <span id="minutes_{{ $id }}" style="--value:floor({{ $time }} / 60 % 60);"></span> :
-            <span id="seconds_{{ $id }}" style="--value:floor({{ $time }} % 60);"></span>
+            <span id="hours_{{ $id }}"></span> :
+            <span id="minutes_{{ $id }}"></span> :
+            <span id="seconds_{{ $id }}"></span>
         </div>
     </div>
 
-    <div>
+    <!-- <div>
         <input type="text" id="customer_{{ $id }}" value="{{ $customer }}" name="customer" class="w-full text-center p-2 input rounded" placeholder="Customer" required>
+    </div> -->
+
+    <div class="mt-2 pb-2 text-lg text-center">
+        <p>{{ $customer }}</p>
     </div>
 
     <div class="flex justify-center space-x-2 items-center">
-        <button id="startStopButton_{{ $id }}" type="button" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
+        <button id="startStopButton_{{ $id }}" type="submit" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
 
         <div class="dropdown">
             <div tabindex="0" role="button" class="btn btn-sm btn-ghost m-1">Option</div>
@@ -45,14 +49,14 @@
 
 <script>
    document.addEventListener('DOMContentLoaded', function() {
-        initializeTimerCard("{{ $id }}", "{{ $time }}");
+        initializeTimerCard("{{ $id }}", "{{ $time }}", "{{ $status }}", "{{ $startTime }}");
     });
 
-    function initializeTimerCard(cardId, initialTime) {
+    function initializeTimerCard(cardId, initialTime, status, startTime) {
         let timerInterval;
         let totalSeconds = parseTimeInput(initialTime);
-        let isRunning = false;
-
+        let isRunning = status === 'running';
+        
         const hoursElement = document.getElementById('hours_' + cardId);
         const minutesElement = document.getElementById('minutes_' + cardId);
         const secondsElement = document.getElementById('seconds_' + cardId);
@@ -66,12 +70,6 @@
                 const additionalMinutes = parseInt(this.dataset.session, 10);
                 addSession(additionalMinutes);
             });
-        });
-
-        customerInput.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // Mencegah default action (submit form)
-            }
         });
 
         function formatTimeFromSeconds(totalSeconds) {
@@ -127,17 +125,10 @@
         });
 
         function startTimer() {
-            if (customerInput.value.trim() === "") {
-                customerInput.classList.add('input-error');
-                return;
-            } else {
-                customerInput.classList.remove('input-error');
-            }
-
             isRunning = true;
-            updateStatus('Running');
             startStopButton.textContent = 'Stop';
-
+            updateStatus('Running');
+            
             timerInterval = setInterval(() => {
                 if (totalSeconds > 0) {
                     totalSeconds--;
@@ -154,12 +145,13 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 body: JSON.stringify({
-                    customer: customerInput.value,
+                    customer: "{{ $customer }}", // Langsung ambil value customer dari backend
                     time: totalSeconds,
                     status: 'Running'
                 })
             });
         }
+
 
         function stopTimer() {
             clearInterval(timerInterval);
@@ -205,12 +197,25 @@
             if (status === 'Running') {
                 statusDisplay.classList.remove('text-primary');
                 statusDisplay.classList.add('text-gray-500');
+                startStopButton.textContent = 'Stop';
+                timerInterval = setInterval(() => {
+                    if (totalSeconds > 0) {
+                        totalSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        stopTimer();
+                    }
+                }, 1000);
             } else if (status === 'Ready') {
                 statusDisplay.classList.remove('text-gray-500');
                 statusDisplay.classList.add('text-primary');
+                startStopButton.textContent = 'Mulai';
+                clearInterval(timerInterval);
+                totalSeconds = parseTimeInput("01:30:00");
             }
         }
 
+        updateStatus(status);
         updateTimerDisplay();
     }
 </script>

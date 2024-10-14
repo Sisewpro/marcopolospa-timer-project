@@ -24,7 +24,7 @@
                     :therapistName="$card->therapist ? $card->therapist->name : 'None'"
                     :time="$card->time"
                     :status="$card->status"
-                    :customer="$card->customer"
+                    :customer="$card->customer ? $card->customer : 'Customer'"
                     :startTime="$card->start_time"
                     :endTime="$card->end_time"
                 />
@@ -64,6 +64,10 @@
                     </select>
                 </div>
 
+                <div class="mt-2">
+                    <x-input-label for="customer" value="Input Customer" />
+                    <x-text-input id="customer" name="customer" placeholder="Customer" class="input input-primary mb-2 w-full" />
+                </div>
 
                 <!-- Atur Ulang dan Penambahan Waktu -->
                 <div class="mt-2">
