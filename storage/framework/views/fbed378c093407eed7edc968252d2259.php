@@ -48,7 +48,7 @@
                 <?php $__currentLoopData = $timerCards; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <?php if (isset($component)) { $__componentOriginalf77ddb0ed50bb65e19297bc247048847 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalf77ddb0ed50bb65e19297bc247048847 = $attributes; } ?>
-<?php $component = App\View\Components\TimerCard::resolve(['id' => $card->id,'cardName' => $card->card_name,'therapistName' => $card->therapist ? $card->therapist->name : 'None','time' => $card->time,'status' => $card->status,'customer' => $card->customer,'startTime' => $card->start_time,'endTime' => $card->end_time] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = App\View\Components\TimerCard::resolve(['id' => $card->id,'cardName' => $card->card_name,'therapistName' => $card->therapist ? $card->therapist->name : 'None','time' => $card->time,'status' => $card->status,'customer' => $card->customer ? $card->customer : 'Customer','startTime' => $card->start_time,'endTime' => $card->end_time] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('timer-card'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
@@ -187,6 +187,48 @@
                     </select>
                 </div>
 
+                <div class="mt-2">
+                    <?php if (isset($component)) { $__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale3da9d84bb64e4bc2eeebaafabfb2581 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-label','data' => ['for' => 'customer','value' => 'Input Customer']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('input-label'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['for' => 'customer','value' => 'Input Customer']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale3da9d84bb64e4bc2eeebaafabfb2581)): ?>
+<?php $attributes = $__attributesOriginale3da9d84bb64e4bc2eeebaafabfb2581; ?>
+<?php unset($__attributesOriginale3da9d84bb64e4bc2eeebaafabfb2581); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581)): ?>
+<?php $component = $__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581; ?>
+<?php unset($__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581); ?>
+<?php endif; ?>
+                    <?php if (isset($component)) { $__componentOriginal18c21970322f9e5c938bc954620c12bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal18c21970322f9e5c938bc954620c12bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.text-input','data' => ['id' => 'customer','name' => 'customer','placeholder' => 'Customer','class' => 'input input-primary mb-2 w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('text-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['id' => 'customer','name' => 'customer','placeholder' => 'Customer','class' => 'input input-primary mb-2 w-full']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal18c21970322f9e5c938bc954620c12bb)): ?>
+<?php $attributes = $__attributesOriginal18c21970322f9e5c938bc954620c12bb; ?>
+<?php unset($__attributesOriginal18c21970322f9e5c938bc954620c12bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal18c21970322f9e5c938bc954620c12bb)): ?>
+<?php $component = $__componentOriginal18c21970322f9e5c938bc954620c12bb; ?>
+<?php unset($__componentOriginal18c21970322f9e5c938bc954620c12bb); ?>
+<?php endif; ?>
+                </div>
 
                 <!-- Atur Ulang dan Penambahan Waktu -->
                 <div class="mt-2">

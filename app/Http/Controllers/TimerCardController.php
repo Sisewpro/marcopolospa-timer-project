@@ -13,10 +13,29 @@ use Illuminate\Support\Facades\Auth;
 class TimerCardController extends Controller
 {
     // Menampilkan semua locker card
+    // public function index()
+    // {
+    //     $timerCards = TimerCard::with('user', 'therapist')->get(); // Ambil semua card dengan user
+    //     $therapists = Therapist::where('status', 'active')->get(); // Ambil therapist aktif
+
+    //     return view('dashboard', compact('timerCards', 'therapists'));
+    // }
+
     public function index()
     {
-        $timerCards = TimerCard::with('user', 'therapist')->get(); // Ambil semua card dengan user
-        $therapists = Therapist::where('status', 'active')->get(); // Ambil therapist aktif
+        // Ambil semua timer cards
+        $timerCards = TimerCard::with('user', 'therapist')->get();
+
+        foreach ($timerCards as $card) {
+            // Jika statusnya "Running", hitung waktu tersisa
+            if ($card->status === 'Running') {
+                $remainingTime = $this->calculateRemainingTime($card->start_time, $card->time);
+                $card->time = $remainingTime; // Update waktu pada objek yang dikembalikan ke view
+            }
+        }
+
+        $therapists = Therapist::where('status', 'active')->get();
+
         return view('dashboard', compact('timerCards', 'therapists'));
     }
 
@@ -42,6 +61,7 @@ class TimerCardController extends Controller
         $request->validate([
             'card_name' => 'required|string|max:255',
             'therapist_id' => 'nullable|exists:therapists,id',
+            'customer' => 'nullable|string|max:255',
             'time' => 'required|string', // Validasi untuk input waktu
         ]);
 
@@ -49,6 +69,7 @@ class TimerCardController extends Controller
         $card->update([
             'card_name' => $request->input('card_name'),
             'therapist_id' => $request->input('therapist_id'),
+            'customer' => $request->input('customer'),
             'time' => $request->input('time'), // Simpan waktu yang baru
         ]);
 
@@ -86,13 +107,32 @@ class TimerCardController extends Controller
         // Simpan data ke tabel rekap
         Rekap::create([
             'timer_card_id' => $timerCard->id,
-            'customer' => $request->customer,
+            'customer' => $timerCard->customer,
             'therapist_name' => $timerCard->therapist->name ?? 'No Therapist',
             'time' => $timerCard->time,
             'status' => 'Running'
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Timer dimulai.');
+    }
+
+    private function calculateRemainingTime($startTime, $initialTime)
+    {
+        // Konversi waktu mulai ke timestamp
+        $startTimestamp = strtotime($startTime);
+
+        // Hitung selisih waktu dalam detik antara sekarang dan waktu mulai
+        $currentTimestamp = now()->timestamp;
+        $elapsedSeconds = $currentTimestamp - $startTimestamp;
+
+        // Konversi waktu awal (format 00:00:00) ke detik
+        $initialSeconds = $this->convertTimeToSeconds($initialTime);
+
+        // Hitung waktu tersisa
+        $remainingSeconds = max(0, $initialSeconds - $elapsedSeconds); // Tidak boleh kurang dari 0
+
+        // Kembalikan dalam format 00:00:00
+        return $this->convertSecondsToTime($remainingSeconds);
     }
 
     public function stop($id)
