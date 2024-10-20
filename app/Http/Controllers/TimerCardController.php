@@ -34,7 +34,10 @@ class TimerCardController extends Controller
             }
         }
 
-        $therapists = Therapist::where('status', 'active')->get();
+        $therapists = Therapist::where('status', 'active')->with('timerCards')->get()->map(function ($therapist) {
+            $therapist->isUnavailable = $therapist->availability_status === 'non-available';
+            return $therapist;
+        });
 
         return view('dashboard', compact('timerCards', 'therapists'));
     }
@@ -57,30 +60,54 @@ class TimerCardController extends Controller
 
     // Mengedit locker card
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'card_name' => 'required|string|max:255',
-            'therapist_id' => 'nullable|exists:therapists,id',
-            'customer' => 'nullable|string|max:255',
-            'time' => 'required|string', // Validasi untuk input waktu
-        ]);
+{
+    $timerCard = TimerCard::findOrFail($id);
+    $oldTherapistId = $timerCard->therapist_id;
 
-        $card = TimerCard::findOrFail($id);
-        $card->update([
-            'card_name' => $request->input('card_name'),
-            'therapist_id' => $request->input('therapist_id'),
-            'customer' => $request->input('customer'),
-            'time' => $request->input('time'), // Simpan waktu yang baru
-        ]);
+    // Validate incoming request data
+    $validatedData = $request->validate([
+        'card_name' => 'required|string|max:255',
+        'therapist_id' => 'nullable|exists:therapists,id',
+        'customer' => 'nullable|string|max:255',
+        'time' => 'required|string', // Assuming time is in 'HH:MM:SS' format
+    ]);
 
-        return redirect()->route('dashboard')->with('success', 'Locker berhasil diubah.');
+    // Update the timer card
+    $timerCard->update([
+        'card_name' => $validatedData['card_name'],
+        'therapist_id' => $validatedData['therapist_id'],
+        'customer' => $validatedData['customer'],
+        'time' => $validatedData['time'],
+    ]);
+
+    // If the therapist is changed to None, make the old therapist available again
+    if ($oldTherapistId && !$validatedData['therapist_id']) {
+        $therapist = Therapist::find($oldTherapistId);
+        $therapist->availability_status = 'available'; // Update to available
+        $therapist->save();
     }
 
+    // If a new therapist is selected, mark them as unavailable
+    if ($validatedData['therapist_id']) {
+        $newTherapist = Therapist::find($validatedData['therapist_id']);
+        $newTherapist->availability_status = 'non-available'; // Mark as unavailable
+        $newTherapist->save();
+    }
+
+    return redirect()->route('timer-cards.index')->with('success', 'Timer card updated successfully.');
+}
 
     // Menghapus locker card
     public function destroy($id)
     {
         $card = TimerCard::findOrFail($id);
+
+        if ($card->therapist_id) {
+            $therapist = Therapist::findOrFail($card->therapist_id);
+            $therapist->availability_status = 'available';
+            $therapist->save();
+        }
+        
         $card->delete();
 
         return redirect()->route('dashboard')->with('success', 'Locker berhasil dihapus.');
@@ -140,11 +167,19 @@ class TimerCardController extends Controller
         // Ambil TimerCard berdasarkan ID
         $timerCard = TimerCard::findOrFail($id);
 
+        // Mengubah status ke "Available"
+        if ($timerCard->therapist_id) {
+            $therapist = Therapist::findOrFail($timerCard->therapist_id);
+            $therapist->availability_status = 'available';
+            $therapist->save();
+        }
+
         // Simpan waktu akhir dan ubah status ke "Ready"
         $timerCard->update([
             'status' => 'Ready', // Status dikembalikan ke Ready
             'time' => '01:30:00', // Reset waktu ke default 01:30:00
             'end_time' => now(), // Simpan waktu selesai
+            'therapist_id' => null, // Set therapist_id ke null untuk menunjukkan "None"
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Timer dihentikan dan waktu dikembalikan ke default.');
@@ -201,16 +236,18 @@ class TimerCardController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $query = TimerCard::query();
+        $query = Rekap::query();
+
         if ($startDate) {
             $query->whereDate('created_at', '>=', $startDate);
         }
         if ($endDate) {
             $query->whereDate('created_at', '<=', $endDate);
         }
-        $timerCards = $query->get();
 
-        $pdf = Pdf::loadView('pdf.timer_cardspdf', compact('timerCards'));
+        $rekaps = $query->with('timerCard')->get();
+
+        $pdf = Pdf::loadView('pdf.rekaps', compact('rekaps'));
 
         return $pdf->download('rekapdata_marcopolo.pdf');
     }

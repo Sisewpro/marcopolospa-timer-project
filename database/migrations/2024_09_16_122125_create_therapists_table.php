@@ -18,6 +18,7 @@ class CreateTherapistsTable extends Migration
             $table->string('name');
             $table->string('phone_number')->unique(); 
             $table->enum('status', ['active', 'inactive']); // Therapist status
+            $table->enum('availability_status', ['available', 'non-available']); // Available status
             $table->timestamps(); // Created and updated timestamps
         });
     }

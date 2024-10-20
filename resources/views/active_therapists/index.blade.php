@@ -39,6 +39,8 @@
                                     </th>
                                     @if(auth()->user()->role !== 'admin')
                                     <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-600">Status</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-600">Available Status
+                                    </th>
                                     <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-600">Actions</th>
                                     @endif
                                     @if(auth()->user()->role === 'admin')
@@ -50,12 +52,26 @@
                                 @forelse($therapists as $therapist)
                                 <tr>
                                     <td class="py-2 px-4 border-b border-gray-200 dark:border-gray-600">
-                                        {{ $therapist->name }}</td>
+                                        {{ $therapist->name }}
+                                    </td>
                                     <td class="py-2 px-4 border-b border-gray-200 dark:border-gray-600">
-                                        {{ $therapist->phone_number }}</td>
+                                        {{ $therapist->phone_number }}
+                                    </td>
                                     @if(auth()->user()->role !== 'admin')
                                     <td class="py-2 px-4 border-b border-gray-200 dark:border-gray-600">
-                                        {{ $therapist->status }}</td>
+                                        <span
+                                            class="inline-flex items-center justify-center {{ $therapist->status === 'active' ? 'text-green-500' : 'text-red-700' }} font-bold">
+                                            {{ $therapist->status }}
+                                        </span>
+                                    </td>
+                                    @endif
+                                    @if(auth()->user()->role !== 'admin')
+                                    <td class="py-2 px-4 border-b border-gray-200 dark:border-gray-600">
+                                        <span
+                                            class="inline-flex items-center justify-center {{ $therapist->availability_status === 'available' ? 'text-green-500' : 'text-red-500' }} font-bold">
+                                            {{ $therapist->availability_status }}
+                                        </span>
+                                    </td>
                                     @endif
                                     @if(auth()->user()->role === 'admin')
                                     <td class="py-2 px-4 border-b border-gray-200 dark:border-gray-600">

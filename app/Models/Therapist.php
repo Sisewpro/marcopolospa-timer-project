@@ -9,9 +9,25 @@ class Therapist extends Model
 {
     use HasFactory;
 
-    // The table associated with the model
     protected $table = 'therapists';
 
-    // The attributes that are mass assignable
-    protected $fillable = ['name', 'email', 'phone_number', 'status'];
+    protected $fillable = ['name', 'email', 'phone_number', 'status', 'availability_status'];
+
+    // Relasi ke TimerCard
+    public function timerCards()
+    {
+        return $this->hasMany(TimerCard::class);
+    }
+
+    // Mark therapist as non-available
+    public function markAsNonAvailable()
+    {
+        $this->update(['availability_status' => 'non-available']);
+    }
+
+    // Cek apakah therapist tidak tersedia
+    public function isUnavailable()
+    {
+        return $this->availability_status === 'non-available' || $this->timerCards()->where('status', '!=', 'completed')->exists();
+    }
 }
