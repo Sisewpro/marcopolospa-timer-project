@@ -51,7 +51,6 @@
                                     <th>Therapist</th>
                                     <th>Customer</th>
                                     <th>Session</th>
-                                    <th>Status</th>
                                     <th>Date</th>
                                 </tr>
                             </thead>
@@ -62,13 +61,6 @@
                                     <td><?php echo e($rekap->therapist_name); ?></td>
                                     <td><?php echo e($rekap->customer); ?></td>
                                     <td><?php echo e($rekap->time); ?></td>
-                                    <td>
-                                        <span
-                                            class="badge <?php echo e($rekap->status == 'Ready' ? 'bg-success text-success-content' : 'bg-warning text-warning-content'); ?>">
-                                            <?php echo e($rekap->status); ?>
-
-                                        </span>
-                                    </td>
                                     <!-- Date format dd/mm/yyyy -->
                                     <td><?php echo e($rekap->created_at->format('d/m/Y')); ?></td>
                                 </tr>

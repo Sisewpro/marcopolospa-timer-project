@@ -42,7 +42,6 @@
                                     <th>Therapist</th>
                                     <th>Customer</th>
                                     <th>Session</th>
-                                    <th>Status</th>
                                     <th>Date</th>
                                 </tr>
                             </thead>
@@ -53,12 +52,6 @@
                                     <td>{{ $rekap->therapist_name }}</td>
                                     <td>{{ $rekap->customer }}</td>
                                     <td>{{ $rekap->time }}</td>
-                                    <td>
-                                        <span
-                                            class="badge {{ $rekap->status == 'Ready' ? 'bg-success text-success-content' : 'bg-warning text-warning-content' }}">
-                                            {{ $rekap->status }}
-                                        </span>
-                                    </td>
                                     <!-- Date format dd/mm/yyyy -->
                                     <td>{{ $rekap->created_at->format('d/m/Y') }}</td>
                                 </tr>

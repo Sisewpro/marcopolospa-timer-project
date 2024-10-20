@@ -1,9 +1,9 @@
-<form action="<?php echo e(route('timer-cards.start', $id)); ?>" method="POST" class="bg-base-100 shadow-md rounded-lg p-4 max-w-sm mx-auto">
+<form action="<?php echo e(route('timer-cards.start', $id)); ?>" method="POST" onsubmit="event.preventDefault();" class="bg-base-100 shadow-md rounded-lg p-4 max-w-sm mx-auto">
     <?php echo csrf_field(); ?>
     <div class="flex justify-between items-center">
         <h2 class="text-lg font-semibold text-base-500"><?php echo e($cardName); ?></h2>
         <div class="flex space-x-2">
-            <span class="cursor-pointer text-base hover:text-primary" onclick="openEditModal('<?php echo e($id); ?>', '<?php echo e($cardName); ?>', '<?php echo e($therapistName); ?>', '<?php echo e($time); ?>')">
+            <span id="editModal_<?php echo e($id); ?>" class="cursor-pointer text-base hover:text-primary" onclick="openEditModal('<?php echo e($id); ?>', '<?php echo e($cardName); ?>', '<?php echo e($therapistName); ?>', '<?php echo e($time); ?>')">
                 <!-- Ikon Edit -->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                     <path d="M5.433 13.917l1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
@@ -35,10 +35,10 @@
     </div>
 
     <div class="flex justify-center space-x-2 items-center">
-        <button id="startStopButton_<?php echo e($id); ?>" type="submit" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
+        <button id="startStopButton_<?php echo e($id); ?>" type="button" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
 
         <div class="dropdown">
-            <div tabindex="0" role="button" class="btn btn-sm btn-ghost m-1">Option</div>
+            <div id="editSession_<?php echo e($id); ?>" tabindex="0" role="button" class="btn btn-sm btn-ghost m-1">Option</div>
             <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                 <li><a href="#" class="session-link" data-card-id="<?php echo e($id); ?>" data-session="45">+1 Session</a></li>
                 <li><a href="#" class="session-link" data-card-id="<?php echo e($id); ?>" data-session="90">+2 Sessions</a></li>
@@ -55,7 +55,7 @@
     function initializeTimerCard(cardId, initialTime, status, startTime) {
         let timerInterval;
         let totalSeconds = parseTimeInput(initialTime);
-        let isRunning = status === 'running';
+        let isRunning = false;
         
         const hoursElement = document.getElementById('hours_' + cardId);
         const minutesElement = document.getElementById('minutes_' + cardId);
@@ -63,6 +63,9 @@
         const statusDisplay = document.getElementById('statusDisplay_' + cardId);
         const startStopButton = document.getElementById('startStopButton_' + cardId);
         const customerInput = document.getElementById('customer_' + cardId);
+        const editModal = document.getElementById('editModal_' + cardId);
+        const editSession = document.getElementById('editSession_' + cardId);
+
         // Event Listener untuk dropdown session yang hanya mempengaruhi card yang sesuai
         document.querySelectorAll(`.session-link[data-card-id="${cardId}"]`).forEach(link => {
             link.addEventListener('click', function(event) {
@@ -94,7 +97,7 @@
             secondsElement.style.setProperty('--value', secs);
 
             // Ubah warna timer menjadi oranye jika waktu kurang dari atau sama dengan 15 menit (900 detik)
-            if (totalSeconds <= 900 && totalSeconds > 300) {
+            if (totalSeconds <= 600 && totalSeconds > 60) {
                 hoursElement.classList.add('text-warning');
                 minutesElement.classList.add('text-warning');
                 secondsElement.classList.add('text-warning');
@@ -105,7 +108,7 @@
             }
 
             // Ubah warna timer menjadi merah jika waktu habis (0 detik)
-            if (totalSeconds <= 300 && totalSeconds > 0) {
+            if (totalSeconds <= 60 && totalSeconds > 10) {
                 hoursElement.classList.add('text-error');
                 minutesElement.classList.add('text-error');
                 secondsElement.classList.add('text-error');
@@ -114,12 +117,26 @@
                 minutesElement.classList.remove('text-error');
                 secondsElement.classList.remove('text-error');
             }
+
+            if (totalSeconds <= 10 && totalSeconds > 0) {
+                hoursElement.classList.add('text-secondary');
+                minutesElement.classList.add('text-secondary');
+                secondsElement.classList.add('text-secondary');
+            } else {
+                hoursElement.classList.remove('text-secondary');
+                minutesElement.classList.remove('text-secondary');
+                secondsElement.classList.remove('text-secondary');
+            }
         }
 
-        startStopButton.addEventListener('click', function () {
+        startStopButton.addEventListener('click', function (event) {
+            event.preventDefault();
             if (isRunning) {
                 stopTimer();
             } else {
+                if (statusDisplay.textContent === 'Running') {
+                    return;
+                 }
                 startTimer();
             }
         });
@@ -129,14 +146,14 @@
             startStopButton.textContent = 'Stop';
             updateStatus('Running');
             
-            timerInterval = setInterval(() => {
-                if (totalSeconds > 0) {
-                    totalSeconds--;
-                    updateTimerDisplay();
-                } else {
-                    stopTimer();
-                }
-            }, 1000);
+            // timerInterval = setInterval(() => {
+            //     if (totalSeconds > 0) {
+            //         totalSeconds--;
+            //         updateTimerDisplay();
+            //     } else {
+            //         stopTimer();
+            //     }
+            // }, 1000);
 
             fetch(`/timer-cards/${cardId}/start`, {
                 method: 'POST',
@@ -170,6 +187,9 @@
                 body: JSON.stringify({
                     status: 'Ready'
                 })
+            }).then(() => {
+                // Setelah server merespons, reload halaman
+                window.location.reload();
             });
         }
 
@@ -196,14 +216,23 @@
 
             if (status === 'Running') {
                 statusDisplay.classList.remove('text-primary');
-                statusDisplay.classList.add('text-gray-500');
+                statusDisplay.classList.add('text-secondary');
+                startStopButton.classList.add('btn-secondary');
+                startStopButton.classList.remove('btn-primary');
                 startStopButton.textContent = 'Stop';
+                startStopButton.onclick = function () {
+                    stopTimer();
+                }
+                editSession.classList.add('opacity-70', 'pointer-events-none');
+                editModal.classList.add('opacity-70');
+                editModal.classList.remove('hover:text-primary');
+                editModal.onclick = function () {
+                    disable = true;
+                }
                 timerInterval = setInterval(() => {
                     if (totalSeconds > 0) {
                         totalSeconds--;
                         updateTimerDisplay();
-                    } else {
-                        stopTimer();
                     }
                 }, 1000);
             } else if (status === 'Ready') {
@@ -211,12 +240,18 @@
                 statusDisplay.classList.add('text-primary');
                 startStopButton.textContent = 'Mulai';
                 clearInterval(timerInterval);
-                totalSeconds = parseTimeInput("01:30:00");
             }
         }
 
+        function reloadPage() {
+            setInterval(() => {
+                window.location.reload();
+            }, 67777);
+        }
+        
         updateStatus(status);
         updateTimerDisplay();
+        reloadPage();
     }
 </script>
 <?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views/components/timer-card.blade.php ENDPATH**/ ?>
