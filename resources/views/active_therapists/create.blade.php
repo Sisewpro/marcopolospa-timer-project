@@ -30,7 +30,7 @@
                                     Phone Number
                                 </label>
                                 <input type="text" id="phone_number" name="phone_number"
-                                    value="{{ old('phone_number') }}" required placeholder="+62 812 3456 7890"
+                                    value="{{ old('phone_number') }}" required placeholder="+6281234567890"
                                     class="input input-bordered w-full dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100 focus:ring-2 focus:ring-primary-500">
                                 @error('phone_number')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
