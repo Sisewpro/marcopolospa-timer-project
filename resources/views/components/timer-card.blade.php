@@ -1,9 +1,9 @@
-<form action="{{ route('timer-cards.start', $id) }}" method="POST" class="bg-base-100 shadow-md rounded-lg p-4 max-w-sm mx-auto">
+<form action="{{ route('timer-cards.start', $id) }}" method="POST" onsubmit="event.preventDefault();" class="bg-base-100 shadow-md rounded-lg pt-4 pb-2 px-3 max-w-sm mx-auto">
     @csrf
     <div class="flex justify-between items-center">
         <h2 class="text-lg font-semibold text-base-500">{{ $cardName }}</h2>
         <div class="flex space-x-2">
-            <span class="cursor-pointer text-base hover:text-primary" onclick="openEditModal('{{ $id }}', '{{ $cardName }}', '{{ $therapistName }}', '{{ $time }}')">
+            <span id="editModal_{{ $id }}" class="cursor-pointer text-base hover:text-primary" onclick="openEditModal('{{ $id }}', '{{ $cardName }}', '{{ $therapistName }}', '{{ $time }}')">
                 <!-- Ikon Edit -->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                     <path d="M5.433 13.917l1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
@@ -17,25 +17,24 @@
         <p>{{ $therapistName }}</p>
     </div>
 
-    <div class="text-center mt-2">
-        <label id="statusDisplay_{{ $id }}" class="block text-xl font-bold text-primary">{{ $status }}</label>
-        <div class="text-3xl font-mono countdown mt-3">
+    <div class="text-center mt-1">
+        <label id="statusDisplay_{{ $id }}" class="block text-xl font-bold text-primary px-2">{{ $status }}</label>
+        <div class="text-3xl font-mono countdown mt-1 pt-1 px-2">
             <span id="hours_{{ $id }}"></span> :
             <span id="minutes_{{ $id }}"></span> :
             <span id="seconds_{{ $id }}"></span>
         </div>
+        <div class="-mt-2">
+            <progress id="progressBar_{{ $id }}" class="progress progress-warning w-3/5 h-1" value="100" max="100"></progress>
+        </div>
     </div>
 
-    <!-- <div>
-        <input type="text" id="customer_{{ $id }}" value="{{ $customer }}" name="customer" class="w-full text-center p-2 input rounded" placeholder="Customer" required>
-    </div> -->
-
-    <div class="mt-2 pb-2 text-lg text-center">
+    <div class="text-lg text-center">
         <p>{{ $customer }}</p>
     </div>
 
-    <div class="flex justify-center space-x-2 items-center">
-        <button id="startStopButton_{{ $id }}" type="submit" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
+    <div class="flex justify-center space-x-2 items-center mt-1">
+        <button id="startStopButton_{{ $id }}" type="button" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
 
         <div class="dropdown">
             <div tabindex="0" role="button" class="btn btn-sm btn-ghost m-1">Option</div>
@@ -55,7 +54,7 @@
     function initializeTimerCard(cardId, initialTime, status, startTime) {
         let timerInterval;
         let totalSeconds = parseTimeInput(initialTime);
-        let isRunning = status === 'running';
+        let isRunning = false;
         
         const hoursElement = document.getElementById('hours_' + cardId);
         const minutesElement = document.getElementById('minutes_' + cardId);
@@ -63,6 +62,9 @@
         const statusDisplay = document.getElementById('statusDisplay_' + cardId);
         const startStopButton = document.getElementById('startStopButton_' + cardId);
         const customerInput = document.getElementById('customer_' + cardId);
+        const editModal = document.getElementById('editModal_' + cardId);
+        const progressBar = document.getElementById('progressBar_' + cardId);
+
         // Event Listener untuk dropdown session yang hanya mempengaruhi card yang sesuai
         document.querySelectorAll(`.session-link[data-card-id="${cardId}"]`).forEach(link => {
             link.addEventListener('click', function(event) {
@@ -93,33 +95,71 @@
             minutesElement.style.setProperty('--value', mins);
             secondsElement.style.setProperty('--value', secs);
 
-            // Ubah warna timer menjadi oranye jika waktu kurang dari atau sama dengan 15 menit (900 detik)
-            if (totalSeconds <= 900 && totalSeconds > 300) {
-                hoursElement.classList.add('text-warning');
-                minutesElement.classList.add('text-warning');
-                secondsElement.classList.add('text-warning');
+            if (totalSeconds > 900, statusDisplay.textContent === "Running") {
+                // progressBar.setAttribute('value', totalSeconds);
+                progressBar.removeAttribute('value');
+                progressBar.classList.add('progress-success');
+                progressBar.classList.remove('progress-warning');
             } else {
-                hoursElement.classList.remove('text-warning');
-                minutesElement.classList.remove('text-warning');
-                secondsElement.classList.remove('text-warning');
+                progressBar.classList.remove('progress-success');
+                progressBar.classList.add('progress-warning');
+            }
+            // Ubah warna timer menjadi oranye jika waktu kurang dari atau sama dengan 15 menit (900 detik)
+            if (totalSeconds <= 900 && totalSeconds > 60) {
+                hoursElement.classList.add('text-orange-400');
+                minutesElement.classList.add('text-orange-400');
+                secondsElement.classList.add('text-orange-400');
+                progressBar.removeAttribute('value');
+                progressBar.classList.add('progress-warning');
+                progressBar.classList.remove('progress-success');
+                statusDisplay.classList.add('text-warning');
+                statusDisplay.classList.remove('text-success');
+            } else {
+                hoursElement.classList.remove('text-orange-400');
+                minutesElement.classList.remove('text-orange-400');
+                secondsElement.classList.remove('text-orange-400');
             }
 
-            // Ubah warna timer menjadi merah jika waktu habis (0 detik)
-            if (totalSeconds <= 300 && totalSeconds > 0) {
+            // Ubah warna timer menjadi merah jika waktu habis (60 detik)
+            if (totalSeconds <= 60 && totalSeconds > 10) {
                 hoursElement.classList.add('text-error');
                 minutesElement.classList.add('text-error');
                 secondsElement.classList.add('text-error');
+                progressBar.removeAttribute('value');
+                progressBar.classList.add('progress-error');
+                progressBar.classList.remove('progress-warning');
+                statusDisplay.classList.add('text-error');
+                statusDisplay.classList.remove('text-success', 'text-warning');
             } else {
                 hoursElement.classList.remove('text-error');
                 minutesElement.classList.remove('text-error');
                 secondsElement.classList.remove('text-error');
             }
+
+            if (totalSeconds <= 10 && totalSeconds > 0) {
+                hoursElement.classList.add('text-secondary');
+                minutesElement.classList.add('text-secondary');
+                secondsElement.classList.add('text-secondary');
+                progressBar.removeAttribute('value');
+                progressBar.classList.add('progress-secondary');
+                progressBar.classList.remove('progress-error', 'progress-warning', 'progress-success');
+                statusDisplay.classList.add('text-secondary');
+                statusDisplay.classList.remove('text-success', 'text-warning', 'text-error');
+            } else {
+                hoursElement.classList.remove('text-secondary');
+                minutesElement.classList.remove('text-secondary');
+                secondsElement.classList.remove('text-secondary');
+            }
         }
 
-        startStopButton.addEventListener('click', function () {
+        startStopButton.addEventListener('click', function (event) {
+            event.preventDefault();
             if (isRunning) {
                 stopTimer();
             } else {
+                if (statusDisplay.textContent === 'Running') {
+                    return;
+                 }
                 startTimer();
             }
         });
@@ -129,14 +169,14 @@
             startStopButton.textContent = 'Stop';
             updateStatus('Running');
             
-            timerInterval = setInterval(() => {
-                if (totalSeconds > 0) {
-                    totalSeconds--;
-                    updateTimerDisplay();
-                } else {
-                    stopTimer();
-                }
-            }, 1000);
+            // timerInterval = setInterval(() => {
+            //     if (totalSeconds > 0) {
+            //         totalSeconds--;
+            //         updateTimerDisplay();
+            //     } else {
+            //         stopTimer();
+            //     }
+            // }, 1000);
 
             fetch(`/timer-cards/${cardId}/start`, {
                 method: 'POST',
@@ -170,6 +210,9 @@
                 body: JSON.stringify({
                     status: 'Ready'
                 })
+            }).then(() => {
+                // Setelah server merespons, reload halaman
+                window.location.reload();
             });
         }
 
@@ -188,6 +231,9 @@
                     additionalMinutes: additionalMinutes,
                     time: totalSeconds
                 })
+            }).then(() => {
+                // Setelah server merespons, reload halaman
+                window.location.reload();
             });
         }
 
@@ -196,14 +242,23 @@
 
             if (status === 'Running') {
                 statusDisplay.classList.remove('text-primary');
-                statusDisplay.classList.add('text-gray-500');
+                statusDisplay.classList.add('text-success');
+                startStopButton.classList.add('btn-error', 'btn-outline');
+                startStopButton.classList.remove('btn-primary');
                 startStopButton.textContent = 'Stop';
+                startStopButton.onclick = function () {
+                    stopTimer();
+                }
+                // editSession.classList.add('opacity-70', 'pointer-events-none');
+                editModal.classList.add('opacity-70');
+                editModal.classList.remove('hover:text-primary');
+                editModal.onclick = function () {
+                    disable = true;
+                }
                 timerInterval = setInterval(() => {
                     if (totalSeconds > 0) {
                         totalSeconds--;
                         updateTimerDisplay();
-                    } else {
-                        stopTimer();
                     }
                 }, 1000);
             } else if (status === 'Ready') {
@@ -211,11 +266,17 @@
                 statusDisplay.classList.add('text-primary');
                 startStopButton.textContent = 'Mulai';
                 clearInterval(timerInterval);
-                totalSeconds = parseTimeInput("01:30:00");
             }
         }
 
+        function reloadPage() {
+            setInterval(() => {
+                window.location.reload();
+            }, 67777);
+        }
+        
         updateStatus(status);
         updateTimerDisplay();
+        reloadPage();
     }
 </script>
