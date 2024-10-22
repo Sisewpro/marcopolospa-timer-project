@@ -23,14 +23,12 @@ class TimerCardController extends Controller
 
     public function index()
     {
-        // Ambil semua timer cards
         $timerCards = TimerCard::with('user', 'therapist')->get();
 
         foreach ($timerCards as $card) {
-            // Jika statusnya "Running", hitung waktu tersisa
             if ($card->status === 'Running') {
                 $remainingTime = $this->calculateRemainingTime($card->start_time, $card->time);
-                $card->time = $remainingTime; // Update waktu pada objek yang dikembalikan ke view
+                $card->time = $remainingTime;
             }
         }
 
@@ -171,6 +169,18 @@ class TimerCardController extends Controller
         // Simpan waktu baru dalam format jam:menit:detik
         $timerCard->time = $this->convertSecondsToTime($newTotalSeconds);
         $timerCard->save();
+
+        // Update waktu juga di tabel Rekap
+        $rekap = Rekap::where('timer_card_id', $timerCard->id)
+        ->where('status', 'Running')
+        ->latest() // Mengambil rekap yang paling terbaru
+        ->first();
+
+        if ($rekap) {
+        // Update waktu di tabel Rekap
+        $rekap->time = $timerCard->time;
+        $rekap->save();
+        }
 
         return response()->json(['success' => true, 'newTime' => $timerCard->time]);
     }
