@@ -1,4 +1,4 @@
-<form action="<?php echo e(route('timer-cards.start', $id)); ?>" method="POST" onsubmit="event.preventDefault();" class="bg-base-100 shadow-md rounded-lg p-4 max-w-sm mx-auto">
+<form action="<?php echo e(route('timer-cards.start', $id)); ?>" method="POST" onsubmit="event.preventDefault();" class="bg-base-100 shadow-md rounded-lg pt-4 pb-2 px-3 max-w-sm mx-auto">
     <?php echo csrf_field(); ?>
     <div class="flex justify-between items-center">
         <h2 class="text-lg font-semibold text-base-500"><?php echo e($cardName); ?></h2>
@@ -17,28 +17,27 @@
         <p><?php echo e($therapistName); ?></p>
     </div>
 
-    <div class="text-center mt-2">
-        <label id="statusDisplay_<?php echo e($id); ?>" class="block text-xl font-bold text-primary"><?php echo e($status); ?></label>
-        <div class="text-3xl font-mono countdown mt-3">
+    <div class="text-center mt-1">
+        <label id="statusDisplay_<?php echo e($id); ?>" class="block text-xl font-bold text-primary px-2"><?php echo e($status); ?></label>
+        <div class="text-3xl font-mono countdown mt-1 pt-1 px-2">
             <span id="hours_<?php echo e($id); ?>"></span> :
             <span id="minutes_<?php echo e($id); ?>"></span> :
             <span id="seconds_<?php echo e($id); ?>"></span>
         </div>
+        <div class="-mt-2">
+            <progress id="progressBar_<?php echo e($id); ?>" class="progress progress-warning w-3/5 h-1" value="100" max="100"></progress>
+        </div>
     </div>
 
-    <!-- <div>
-        <input type="text" id="customer_<?php echo e($id); ?>" value="<?php echo e($customer); ?>" name="customer" class="w-full text-center p-2 input rounded" placeholder="Customer" required>
-    </div> -->
-
-    <div class="mt-2 pb-2 text-lg text-center">
+    <div class="text-lg text-center">
         <p><?php echo e($customer); ?></p>
     </div>
 
-    <div class="flex justify-center space-x-2 items-center">
+    <div class="flex justify-center space-x-2 items-center mt-1">
         <button id="startStopButton_<?php echo e($id); ?>" type="button" class="btn btn-primary btn-sm px-4 py-2 rounded">Mulai</button>
 
         <div class="dropdown">
-            <div id="editSession_<?php echo e($id); ?>" tabindex="0" role="button" class="btn btn-sm btn-ghost m-1">Option</div>
+            <div tabindex="0" role="button" class="btn btn-sm btn-ghost m-1">Option</div>
             <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                 <li><a href="#" class="session-link" data-card-id="<?php echo e($id); ?>" data-session="45">+1 Session</a></li>
                 <li><a href="#" class="session-link" data-card-id="<?php echo e($id); ?>" data-session="90">+2 Sessions</a></li>
@@ -64,7 +63,7 @@
         const startStopButton = document.getElementById('startStopButton_' + cardId);
         const customerInput = document.getElementById('customer_' + cardId);
         const editModal = document.getElementById('editModal_' + cardId);
-        const editSession = document.getElementById('editSession_' + cardId);
+        const progressBar = document.getElementById('progressBar_' + cardId);
 
         // Event Listener untuk dropdown session yang hanya mempengaruhi card yang sesuai
         document.querySelectorAll(`.session-link[data-card-id="${cardId}"]`).forEach(link => {
@@ -96,22 +95,41 @@
             minutesElement.style.setProperty('--value', mins);
             secondsElement.style.setProperty('--value', secs);
 
-            // Ubah warna timer menjadi oranye jika waktu kurang dari atau sama dengan 15 menit (900 detik)
-            if (totalSeconds <= 600 && totalSeconds > 60) {
-                hoursElement.classList.add('text-warning');
-                minutesElement.classList.add('text-warning');
-                secondsElement.classList.add('text-warning');
+            if (totalSeconds > 900, statusDisplay.textContent === "Running") {
+                // progressBar.setAttribute('value', totalSeconds);
+                progressBar.removeAttribute('value');
+                progressBar.classList.add('progress-success');
+                progressBar.classList.remove('progress-warning');
             } else {
-                hoursElement.classList.remove('text-warning');
-                minutesElement.classList.remove('text-warning');
-                secondsElement.classList.remove('text-warning');
+                progressBar.classList.remove('progress-success');
+                progressBar.classList.add('progress-warning');
+            }
+            // Ubah warna timer menjadi oranye jika waktu kurang dari atau sama dengan 15 menit (900 detik)
+            if (totalSeconds <= 900 && totalSeconds > 60) {
+                hoursElement.classList.add('text-orange-400');
+                minutesElement.classList.add('text-orange-400');
+                secondsElement.classList.add('text-orange-400');
+                progressBar.removeAttribute('value');
+                progressBar.classList.add('progress-warning');
+                progressBar.classList.remove('progress-success');
+                statusDisplay.classList.add('text-warning');
+                statusDisplay.classList.remove('text-success');
+            } else {
+                hoursElement.classList.remove('text-orange-400');
+                minutesElement.classList.remove('text-orange-400');
+                secondsElement.classList.remove('text-orange-400');
             }
 
-            // Ubah warna timer menjadi merah jika waktu habis (0 detik)
+            // Ubah warna timer menjadi merah jika waktu habis (60 detik)
             if (totalSeconds <= 60 && totalSeconds > 10) {
                 hoursElement.classList.add('text-error');
                 minutesElement.classList.add('text-error');
                 secondsElement.classList.add('text-error');
+                progressBar.removeAttribute('value');
+                progressBar.classList.add('progress-error');
+                progressBar.classList.remove('progress-warning');
+                statusDisplay.classList.add('text-error');
+                statusDisplay.classList.remove('text-success', 'text-warning');
             } else {
                 hoursElement.classList.remove('text-error');
                 minutesElement.classList.remove('text-error');
@@ -122,6 +140,11 @@
                 hoursElement.classList.add('text-secondary');
                 minutesElement.classList.add('text-secondary');
                 secondsElement.classList.add('text-secondary');
+                progressBar.removeAttribute('value');
+                progressBar.classList.add('progress-secondary');
+                progressBar.classList.remove('progress-error', 'progress-warning', 'progress-success');
+                statusDisplay.classList.add('text-secondary');
+                statusDisplay.classList.remove('text-success', 'text-warning', 'text-error');
             } else {
                 hoursElement.classList.remove('text-secondary');
                 minutesElement.classList.remove('text-secondary');
@@ -208,6 +231,9 @@
                     additionalMinutes: additionalMinutes,
                     time: totalSeconds
                 })
+            }).then(() => {
+                // Setelah server merespons, reload halaman
+                window.location.reload();
             });
         }
 
@@ -216,14 +242,14 @@
 
             if (status === 'Running') {
                 statusDisplay.classList.remove('text-primary');
-                statusDisplay.classList.add('text-secondary');
-                startStopButton.classList.add('btn-secondary');
+                statusDisplay.classList.add('text-success');
+                startStopButton.classList.add('btn-error', 'btn-outline');
                 startStopButton.classList.remove('btn-primary');
                 startStopButton.textContent = 'Stop';
                 startStopButton.onclick = function () {
                     stopTimer();
                 }
-                editSession.classList.add('opacity-70', 'pointer-events-none');
+                // editSession.classList.add('opacity-70', 'pointer-events-none');
                 editModal.classList.add('opacity-70');
                 editModal.classList.remove('hover:text-primary');
                 editModal.onclick = function () {
