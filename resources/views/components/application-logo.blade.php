@@ -5,9 +5,6 @@
         <p style="font-weight: bold;">
             Marcopolo Time
             <br />
-            <span style="font-weight: normal;">Provided by Techno Net 
-                {{ $slot }}
-            </span>
         </p>
     </aside>
 </div>

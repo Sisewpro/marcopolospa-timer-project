@@ -1,5 +1,4 @@
-<div class="overflow-x-auto">
-    <!-- Therapist Details -->
+<div class="overflow-x-auto p-4">
     @if(!$therapist)
     <p class="text-gray-700 dark:text-gray-300">Therapist not found.</p>
     @else
@@ -19,7 +18,9 @@
                 <td class="px-4 py-2 border-b border-gray-300 dark:border-gray-600">{{ $therapist->name }}</td>
                 <td class="px-4 py-2 border-b border-gray-300 dark:border-gray-600">{{ $therapist->phone_number }}</td>
                 @unless(auth()->user()->role === 'admin')
-                <td class="px-4 py-2 border-b border-gray-300 dark:border-gray-600">{{ $therapist->status }}</td>
+                <td class="px-4 py-2 border-b border-gray-300 dark:border-gray-600">
+                    {{ $therapist->status ?? 'Unavailable' }}
+                </td>
                 @endunless
             </tr>
         </tbody>

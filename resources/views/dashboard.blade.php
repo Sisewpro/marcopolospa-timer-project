@@ -32,14 +32,15 @@
     <x-modal name="edit-modal" maxWidth="lg">
         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Locker</h3>
-            <form id="deleteForm" method="POST" action="">
+            <form id="deleteForm" method="POST"
+                action="{{ route('timer-cards.destroy', isset($card) ? $card->id : '') }}">
                 @csrf
                 @method('DELETE')
                 <x-danger-button class="w-full my-3">
                     {{ __('DELETE LOCKER') }}
                 </x-danger-button>
             </form>
-            <form id="editForm" method="POST" action="">
+            <form id="editForm" method="POST" action="{{ route('timer-cards.update', isset($card) ? $card->id : '') }}">
                 @csrf
                 @method('PATCH')
 
@@ -56,6 +57,7 @@
                     <select name="therapist_id" id="therapistSelect"
                         class="select select-primary border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mb-2 w-full">
                         <option value="" selected>None</option>
+                        @if(isset($therapists))
                         @foreach($therapists as $therapist)
                         <option value="{{ $therapist->id }}" {{ $therapist->isUnavailable ? 'disabled' : '' }}>
                             {{ $therapist->name }}
@@ -64,6 +66,7 @@
                             @endif
                         </option>
                         @endforeach
+                        @endif
                     </select>
                 </div>
 
@@ -105,8 +108,8 @@
 <script>
 // Fungsi untuk membuka modal edit
 function openEditModal(id, cardName, therapistName, time) {
-    document.getElementById('editForm').action = `/timer-cards/${id}`;
-    document.getElementById('deleteForm').action = `/timer-cards/${id}`;
+    document.getElementById('editForm').action = `/timer-cards/${id}/update`;
+    document.getElementById('deleteForm').action = `/timer-cards/${id}/destroy`;
     document.getElementById('card_name').value = cardName;
     document.getElementById('time').value = time || '01:30:00'; // Default ke 90 menit
 

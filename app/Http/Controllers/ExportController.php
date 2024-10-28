@@ -10,8 +10,11 @@ class ExportController extends Controller
     public function show()
     {
         // Fetch data for the export from the 'rekaps' table
-        $rekaps = Rekap::with('timerCard')->get(); // Include related timerCard data
+        $query = Rekap::join('timer_cards', 'rekaps.timer_card_id', '=', 'timer_cards.id') // Adjust the table name as needed
+        ->select('rekaps.*') // Select all columns from rekaps
+        ->orderByRaw('CAST(SUBSTRING_INDEX(timer_cards.card_name, " ", -1) AS UNSIGNED) ASC');
 
+        $rekaps = $query->get();
         // Return the view and pass the rekaps data to it
         return view('export', compact('rekaps'));
     }

@@ -25,11 +25,6 @@
 
         <!-- Page Heading -->
         @isset($header)
-        <header class="bg-base-100 dark:bg-gray-800 shadow">
-            <div class="mx-auto py-6 sm:px-8 lg:px-10">
-                {{ $header }}
-            </div>
-        </header>
         @endisset
 
         <!-- Page Content -->
@@ -41,7 +36,7 @@
             @endif
         </main>
     </div>
-    <div class="bg-base-100">
+    <div class="bg-base-200">
         <div class="mx-auto sm:px-8 lg:px-10">
             <x-footer></x-footer>
         </div>

@@ -85,7 +85,8 @@
 <?php $component->withAttributes(['name' => 'edit-modal','maxWidth' => 'lg']); ?>
         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Locker</h3>
-            <form id="deleteForm" method="POST" action="">
+            <form id="deleteForm" method="POST"
+                action="<?php echo e(route('timer-cards.destroy', isset($card) ? $card->id : '')); ?>">
                 <?php echo csrf_field(); ?>
                 <?php echo method_field('DELETE'); ?>
                 <?php if (isset($component)) { $__componentOriginal656e8c5ea4d9a4fa173298297bfe3f11 = $component; } ?>
@@ -111,7 +112,7 @@
 <?php unset($__componentOriginal656e8c5ea4d9a4fa173298297bfe3f11); ?>
 <?php endif; ?>
             </form>
-            <form id="editForm" method="POST" action="">
+            <form id="editForm" method="POST" action="<?php echo e(route('timer-cards.update', isset($card) ? $card->id : '')); ?>">
                 <?php echo csrf_field(); ?>
                 <?php echo method_field('PATCH'); ?>
 
@@ -184,6 +185,7 @@
                     <select name="therapist_id" id="therapistSelect"
                         class="select select-primary border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mb-2 w-full">
                         <option value="" selected>None</option>
+                        <?php if(isset($therapists)): ?>
                         <?php $__currentLoopData = $therapists; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $therapist): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <option value="<?php echo e($therapist->id); ?>" <?php echo e($therapist->isUnavailable ? 'disabled' : ''); ?>>
                             <?php echo e($therapist->name); ?>
@@ -193,6 +195,7 @@
                             <?php endif; ?>
                         </option>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endif; ?>
                     </select>
                 </div>
 
@@ -380,8 +383,8 @@
 <script>
 // Fungsi untuk membuka modal edit
 function openEditModal(id, cardName, therapistName, time) {
-    document.getElementById('editForm').action = `/timer-cards/${id}`;
-    document.getElementById('deleteForm').action = `/timer-cards/${id}`;
+    document.getElementById('editForm').action = `/timer-cards/${id}/update`;
+    document.getElementById('deleteForm').action = `/timer-cards/${id}/destroy`;
     document.getElementById('card_name').value = cardName;
     document.getElementById('time').value = time || '01:30:00'; // Default ke 90 menit
 
