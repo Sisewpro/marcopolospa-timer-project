@@ -5,10 +5,6 @@
         <p style="font-weight: bold;">
             Marcopolo Time
             <br />
-            <span style="font-weight: normal;">Provided by Techno Net 
-                <?php echo e($slot); ?>
-
-            </span>
         </p>
     </aside>
 </div><?php /**PATH D:\laragon\www\spa-counter-rev-ver-1\resources\views/components/application-logo.blade.php ENDPATH**/ ?>

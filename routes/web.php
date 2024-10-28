@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 // Default registration page route
 Route::get('/', function () {
-    return view('auth.register');
+    return view('auth.login');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -28,8 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/timer-cards/{id}/start', [TimerCardController::class, 'start'])->name('timer-cards.start');
     Route::post('/timer-cards/{id}/stop', [TimerCardController::class, 'stop'])->name('timer-cards.stop');
     Route::post('/timer-cards/{id}/add-session', [TimerCardController::class, 'addSession'])->name('timer-cards.addSession');
-    Route::patch('/timer-cards/{id}', [TimerCardController::class, 'update'])->name('timer-cards.update');
-    Route::delete('/timer-cards/{id}', [TimerCardController::class, 'destroy'])->name('timer-cards.destroy');
+    Route::patch('/timer-cards/{id}/update', [TimerCardController::class, 'update'])->name('timer-cards.update');
+    Route::delete('/timer-cards/{id}/destroy', [TimerCardController::class, 'destroy'])->name('timer-cards.destroy');
     Route::get('/timer-cards/{id}/remaining-time', [TimerCardController::class, 'getRemainingTime']);
 
     // Master

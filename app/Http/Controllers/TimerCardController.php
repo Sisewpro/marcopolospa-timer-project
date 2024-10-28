@@ -86,7 +86,7 @@ class TimerCardController extends Controller
             $newTherapist->availability_status = 'non-available'; // Mark as unavailable
             $newTherapist->save();
         }
-            return redirect()->route('timer-cards.index')->with('success', 'Timer card updated successfully.');
+        return redirect()->route('timer-cards.index')->with('success', 'Timer card updated successfully.');
     }
 
     // Menghapus locker card
@@ -110,22 +110,19 @@ class TimerCardController extends Controller
         $timerCard = TimerCard::findOrFail($id);
 
         // Validasi input customer
-        $request->validate([
-            'customer' => 'required|string|max:255',
-        ]);
+        $request->validate([]);
 
         // Set waktu mulai sekarang dan status "Running"
         $timerCard->update([
             'status' => 'Running',
-            'customer' => $request->customer,
             'start_time' => now(), // Simpan waktu mulai
         ]);
 
         // Simpan data ke tabel rekap
         Rekap::create([
             'timer_card_id' => $timerCard->id,
-            'customer' => $timerCard->customer,
             'therapist_name' => $timerCard->therapist->name ?? 'No Therapist',
+            'customer' => $timerCard->customer ?? 'Customer',
             'time' => $timerCard->time,
             'status' => 'Running'
         ]);
@@ -169,6 +166,7 @@ class TimerCardController extends Controller
             'status' => 'Ready', // Status dikembalikan ke Ready
             'time' => '01:30:00', // Reset waktu ke default 01:30:00
             'end_time' => now(), // Simpan waktu selesai
+            'customer' => null,
             'therapist_id' => null, // Set therapist_id ke null untuk menunjukkan "None"
         ]);
 
@@ -199,14 +197,14 @@ class TimerCardController extends Controller
 
         // Update waktu juga di tabel Rekap
         $rekap = Rekap::where('timer_card_id', $timerCard->id)
-        ->where('status', 'Running')
-        ->latest() // Mengambil rekap yang paling terbaru
-        ->first();
+            ->where('status', 'Running')
+            ->latest() // Mengambil rekap yang paling terbaru
+            ->first();
 
         if ($rekap) {
-        // Update waktu di tabel Rekap
-        $rekap->time = $timerCard->time;
-        $rekap->save();
+            // Update waktu di tabel Rekap
+            $rekap->time = $timerCard->time;
+            $rekap->save();
         }
 
         return response()->json(['success' => true, 'newTime' => $timerCard->time]);
@@ -238,7 +236,10 @@ class TimerCardController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $query = Rekap::query();
+        $query = Rekap::join('timer_cards', 'rekaps.timer_card_id', '=', 'timer_cards.id')
+        ->select('rekaps.*', 'timer_cards.card_name') // Fetch necessary columns
+        ->orderByRaw('CAST(SUBSTRING_INDEX(timer_cards.card_name, " ", -1) AS UNSIGNED) ASC');
+        
         if ($startDate) {
             $query->whereDate('created_at', '>=', $startDate);
         }
@@ -246,7 +247,8 @@ class TimerCardController extends Controller
             $query->whereDate('created_at', '<=', $endDate);
         }
 
-        $rekaps = $query->with('timerCard')->get();
+        $rekaps = $query->get();
+        
         $pdf = Pdf::loadView('pdf.rekaps', compact('rekaps'));
 
         return $pdf->download('rekapdata_marcopolo.pdf');

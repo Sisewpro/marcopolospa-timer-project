@@ -25,12 +25,6 @@
 
         <!-- Page Heading -->
         <?php if(isset($header)): ?>
-        <header class="bg-base-100 dark:bg-gray-800 shadow">
-            <div class="mx-auto py-6 sm:px-8 lg:px-10">
-                <?php echo e($header); ?>
-
-            </div>
-        </header>
         <?php endif; ?>
 
         <!-- Page Content -->
@@ -43,7 +37,7 @@
             <?php endif; ?>
         </main>
     </div>
-    <div class="bg-base-100">
+    <div class="bg-base-200">
         <div class="mx-auto sm:px-8 lg:px-10">
             <?php if (isset($component)) { $__componentOriginal99051027c5120c83a2f9a5ae7c4c3cfa = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal99051027c5120c83a2f9a5ae7c4c3cfa = $attributes; } ?>

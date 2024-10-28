@@ -10,7 +10,7 @@ class ActiveTherapistController extends Controller
 {
     public function index()
     {
-        $therapists = Therapist::all();
+        $therapists = Therapist::orderBy('name', 'asc')->get();
         $userHasPermission = Auth::user()->role === 'admin'; // Check if the user is an admin
 
         return view('active_therapists.index', compact('therapists', 'userHasPermission'));
