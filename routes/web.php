@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/master', [MasterController::class, 'index'])->name('master');
     // Sub nav export data
     Route::get('/export-data', [ExportController::class, 'show'])->name('export-data');
-    Route::get('/export/pdf', [TimerCardController::class, 'exportPdf'])->name('export.pdf');
+    Route::get('/export/pdf', [ExportController::class, 'exportPdf'])->name('export.pdf');
     // Sub nav Active Therapists (Admin only)
     Route::get('/active-therapists', [ActiveTherapistController::class, 'index'])->name('active-therapists.index');
     Route::get('/active-therapists/create', [ActiveTherapistController::class, 'create'])->name('active-therapists.create');

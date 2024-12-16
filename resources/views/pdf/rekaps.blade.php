@@ -95,14 +95,13 @@
             @foreach($rekaps as $rekap)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $rekap->timerCard->card_name }}</td> <!-- Access the timer card name via relation -->
-                <td>{{ $rekap->therapist_name }}</td> <!-- therapist_name from rekaps table -->
-                <td>{{ $rekap->customer }}</td> <!-- customer from rekaps table -->
-                <td>{{ $rekap->time }}</td> <!-- session time from rekaps table -->
-                <td>{{ \Carbon\Carbon::parse($rekap->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('j F Y') }}
-                </td> <!-- formatted date -->
-                <td>{{ \Carbon\Carbon::parse($rekap->created_at)->setTimezone('Asia/Jakarta')->translatedFormat('H:i:s') }}
-                    WIB</td> <!-- formatted time -->
+                <td>{{ $rekap->timerCard->card_name ?? 'No Card' }}</td>
+                <!-- Access the timer card name via relation, fallback value if missing -->
+                <td>{{ $rekap->therapist_name ?? 'N/A' }}</td> <!-- therapist_name from rekaps table -->
+                <td>{{ $rekap->customer ?? 'N/A' }}</td> <!-- customer from rekaps table -->
+                <td>{{ $rekap->time ?? 'No session time' }}</td> <!-- session time from rekaps table -->
+                <td>{{ $rekap->formatted_date }}</td>
+                <td>{{ $rekap->formatted_time }}</td>
             </tr>
             @endforeach
         </tbody>

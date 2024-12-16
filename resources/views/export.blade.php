@@ -8,9 +8,9 @@
             <div class="bg-base-100 dark:bg-base-300 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-base-content dark:text-base-content">
 
-                    <!-- Export to PDF and Date Filters -->
+                    <!-- Export to PDF with Date Filters -->
                     <div class="mb-6">
-                        <!-- Filter Form for Display and Export -->
+                        <!-- Filter Form for Export -->
                         <form method="GET" action="{{ route('export.pdf') }}">
                             <div class="form-control mb-4">
                                 <label for="start_date" class="label">Start Date</label>
@@ -23,12 +23,8 @@
                                 <input type="date" name="end_date" id="end_date" class="input input-bordered"
                                     value="{{ request('end_date') }}">
                             </div>
-                        </form>
 
-                        <!-- Export to PDF Button (includes date filters) -->
-                        <form method="GET" action="{{ route('export.pdf') }}">
-                            <input type="hidden" name="start_date" value="{{ request('start_date') }}">
-                            <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+                            <!-- Export to PDF Button -->
                             <button type="submit" class="btn btn-secondary mt-2">Export to PDF</button>
                         </form>
                     </div>
